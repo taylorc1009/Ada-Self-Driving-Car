@@ -17,4 +17,6 @@ package World with SPARK_Mode is
      Pre => car.battery > 0,
      Post => car.battery <= car.battery - 1 and
      car.engineOn = True;
+
+   function warnLowBattery return Boolean;
 end World;
