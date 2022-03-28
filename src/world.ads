@@ -1,6 +1,6 @@
 package World with SPARK_Mode is
-   type BatteryLevel is range 0..100;
-   type MilesPerHour is range 0..70;
+   type BatteryLevel is new Integer range 0..100;
+   type MilesPerHour is new Integer range 0..70;
    type EngineState is new Boolean;
    type CurrentGear is (PARKED, DRIVE, REVERSING);
 
