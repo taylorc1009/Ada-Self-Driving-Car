@@ -1,5 +1,6 @@
 with World; use World;
 with Ada.Text_IO; use Ada.Text_IO;
+with RandGen; use RandGen;
 
 procedure Main is
    inputStr : String(1..2);
@@ -26,6 +27,8 @@ begin
                goto select_gear;
          end case;
          Put_Line("Gear changed to: "& car.gear'Image);
+      else
+         null;
       end if;
 
       if warnLowBattery then
