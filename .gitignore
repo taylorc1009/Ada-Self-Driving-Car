@@ -6,3 +6,4 @@
 
 # Compiler outputs
 /obj
+!/obj/gpsauto.cgpr
