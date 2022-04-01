@@ -32,9 +32,9 @@ package body WorldPackage with SPARK_Mode is
 
    procedure generateSpeedLimit is
    begin
-      world.curStreetSpeedLimit := RandGen.generate(7) * 10;
+      world.curStreetSpeedLimit := RandGen.generate(3) * 10;
       while world.curStreetSpeedLimit = 0 loop
-         world.curStreetSpeedLimit := RandGen.generate(7) * 10;
+         world.curStreetSpeedLimit := RandGen.generate(3) * 10;
       end loop;
    end generateSpeedLimit;
 
@@ -58,6 +58,9 @@ package body WorldPackage with SPARK_Mode is
 
    function generateScenario return WorldScenario is
    begin
+      if world.numTurnsTaken = Integer'Value(world.numTurnsUntilDestination'Image) then
+         return ARRIVED;
+      end if;
       case RandGen.generate(100) is
          when 1 | 2 | 3 | 4 | 5 => -- 5% chance of unusual scenario
             case RandGen.generate(1) is -- adjust this integer to match the number of world scenarios the car can encounter
