@@ -1,4 +1,6 @@
 package World with SPARK_Mode is
+   -- Car
+
    type BatteryLevel is new Integer range 0..100;
    type MilesPerHour is new Integer range 0..70;
    type CarGear is (PARKED, DRIVE, REVERSING);
@@ -46,4 +48,13 @@ package World with SPARK_Mode is
      car.battery > 0 and
      (value = 1 or value = -1),
      Post => car.speed /= car.speed;
+
+
+   --World
+
+   type WorldType is record
+      curStreetIsLast : Boolean := False;
+      curStreetSpeedLimit : Integer := 0;
+      numTurnsUntilDestination : Integer := 0;
+   end record;
 end World;
