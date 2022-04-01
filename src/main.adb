@@ -6,6 +6,7 @@ procedure Main is
    inputStr : String(1..2);
    inputLast : Natural := 1;
    turnIncoming : Boolean := False;
+   endJourney : Boolean := False;
 begin
    while car.battery > 0 loop
       if car.engineOn = False then
@@ -29,21 +30,38 @@ begin
                goto select_gear;
          end case;
          Put_Line("Gear changed to: "& car.gear'Image);
-      elsif not turnIncoming then
-         case generateScenario is
-         when TURN =>
-            turnIncoming := True;
-         when OBSTRUCTION =>
-            null;
-         when others =>
-            if Integer'Value(car.speed'Image) < Integer'Value(world.curStreetSpeedLimit'Image) then
-              modifySpeed(1);
-            end if;
-         end case;
+         initialiseRoute;
+      else
+         if not turnIncoming and not endJourney then
+            case generateScenario is
+               when ARRIVED =>
+                  Put_Line("Car arrived at destination! Preparing to park...");
+                  endJourney := True;
+               when TURN =>
+                  Put_Line("Upcoming turn: slowing dow to prepare for the turn...");
+                  turnIncoming := True;
+               when OBSTRUCTION =>
+                  Put_Line("Obstruction detected...");
+               when others =>
+                  if Integer'Value(car.speed'Image) < Integer'Value(world.curStreetSpeedLimit'Image) then
+                     modifySpeed(1);
+                  end if;
+            end case;
+         elsif Integer'Value(car.speed'Image) = 0 then
+            Put_Line("Car turned a corner!");
+            turnIncoming := False;
+            carTurned;
+         else
+            modifySpeed(-1);
+         end if;
       end if;
 
       if warnLowBattery then
          Put_Line("Warning:"& car.battery'Image &"% battery remaining");
+      elsif endJourney and Integer'Value(car.speed'Image) = 0 then
+         Put_Line("Car parked at destination!");
+         endJourney := False;
+         changeGear(PARKED);
       else
          Put_Line("Battery:"& car.battery'Image &"%, speed:"& car.speed'Image);
       end if;

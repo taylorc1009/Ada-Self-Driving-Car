@@ -4,7 +4,7 @@ package WorldPackage with SPARK_Mode is
    -- Car
 
    type BatteryLevel is new Integer range 0..100;
-   type MilesPerHour is new Integer range 0..70;
+   type MilesPerHour is new Integer range -1..70;
    type CarGear is (PARKED, DRIVE, REVERSING);
 
    type CarType is record
@@ -53,7 +53,7 @@ package WorldPackage with SPARK_Mode is
 
 
    --World
-   type WorldScenario is (TURN, OBSTRUCTION, NO_SCENARIO); -- note that TURN is a special scenario as it has a higher probability of occurring
+   type WorldScenario is (ARRIVED, TURN, OBSTRUCTION, NO_SCENARIO); -- note that TURN is a special scenario as it has a higher probability of occurring
 
    type WorldType is record
       curStreetSpeedLimit : RandRange := 0;
