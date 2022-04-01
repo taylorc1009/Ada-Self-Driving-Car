@@ -16,7 +16,7 @@ begin
       end if;
 
       if car.gear = PARKED then
-         Put_Line("Enter a number to put the car into: 1 = drive, 2 = reverse");
+         Put_Line("Enter a number to put the car into: 1 = drive, 2 = reverse, 3 = diagnostics mode");
          <<select_gear>>
          Get_Line(inputStr, inputLast);
          case inputStr(1) is
@@ -24,6 +24,7 @@ begin
                changeGear(DRIVE);
             when '2' =>
                changeGear(REVERSING);
+
             when others =>
                Put_Line("(!) error: invalid entry, please enter a number within the given range");
                goto select_gear;
@@ -36,6 +37,8 @@ begin
             Put_Line("scenario"& scenario'Image);
          elsif 5 <= scenarioProbability and scenarioProbability < 15 then
             Put_Line("turn");
+         else
+            modifySpeed(1);
          end if;
       end if;
 
