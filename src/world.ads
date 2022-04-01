@@ -8,6 +8,7 @@ package World with SPARK_Mode is
       speed : MilesPerHour := 0;
       engineOn : Boolean := False;
       gear : CarGear := PARKED;
+      diagnosticsOn : Boolean := False;
    end record;
 
    car : CarType;
@@ -25,6 +26,8 @@ package World with SPARK_Mode is
 
    procedure changeGear (gear : in CarGear) with
      Pre => car.engineOn = True and
-     gear /= car.gear and not
-     (car.speed > 0 and gear /= DRIVE);
+     gear /= car.gear and
+     not (car.speed > 0 or
+         (car.battery <= 10 and car.gear = PARKED)),
+     Post => car.gear /= car.gear;
 end World;
