@@ -1,10 +1,11 @@
-with World; use World;
+with WorldPackage; use WorldPackage;
 with Ada.Text_IO; use Ada.Text_IO;
 with RandGen; use RandGen;
 
 procedure Main is
    inputStr : String(1..2);
    inputLast : Natural := 1;
+   turnIncoming : Boolean := False;
 begin
    while car.battery > 0 loop
       if car.engineOn = False then
@@ -28,11 +29,16 @@ begin
                goto select_gear;
          end case;
          Put_Line("Gear changed to: "& car.gear'Image);
-      else
+      elsif not turnIncoming then
          case generateScenario is
-            when TURN => null;
-            when OBSTRUCTION => null;
-            when others => modifySpeed(1);
+         when TURN =>
+            turnIncoming := True;
+         when OBSTRUCTION =>
+            null;
+         when others =>
+            if Integer'Value(car.speed'Image) < Integer'Value(world.curStreetSpeedLimit'Image) then
+              modifySpeed(1);
+            end if;
          end case;
       end if;
 

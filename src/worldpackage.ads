@@ -1,6 +1,6 @@
 with RandGen; use RandGen;
 
-package World with SPARK_Mode is
+package WorldPackage with SPARK_Mode is
    -- Car
 
    type BatteryLevel is new Integer range 0..100;
@@ -53,7 +53,7 @@ package World with SPARK_Mode is
 
 
    --World
-   type WorldScenario is (TURN, OBSTRUCTION, NO_SCENARIO);
+   type WorldScenario is (TURN, OBSTRUCTION, NO_SCENARIO); -- note that TURN is a special scenario as it has a higher probability of occurring
 
    type WorldType is record
       curStreetSpeedLimit : RandRange := 0;
@@ -63,7 +63,11 @@ package World with SPARK_Mode is
 
    world : WorldType;
 
+   procedure generateSpeedLimit;
+
    procedure initialiseRoute;
 
+   procedure carTurned;
+
    function generateScenario return WorldScenario;
-end World;
+end WorldPackage;
