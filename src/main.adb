@@ -16,15 +16,21 @@ begin
       end if;
 
       if car.gear = PARKED then
-         Put_Line("Enter a number to put the car into: 1 = drive, 2 = reverse, 3 = diagnostics mode");
+         Put_Line("Enter a number to put the car into: 0 = engine off (and charge car), 1 = drive, 2 = reverse, 3 = diagnostics mode, 4 = exit the car");
          <<select_gear>>
          Get_Line(inputStr, inputLast);
          case inputStr(1) is
+            when '0' =>
+               car.engineOn := False;
+               car.battery := 100;
             when '1' =>
                changeGear(DRIVE);
             when '2' =>
                changeGear(REVERSING);
-
+            when '3' =>
+               Put_Line("Running diagnostics...");
+            when '4' =>
+               return;
             when others =>
                Put_Line("(!) error: invalid entry, please enter a number within the given range");
                goto select_gear;
@@ -38,7 +44,7 @@ begin
                   Put_Line("Car arrived at destination! Preparing to park...");
                   endJourney := True;
                when TURN =>
-                  Put_Line("Upcoming turn: slowing dow to prepare for the turn...");
+                  Put_Line("Upcoming turn: slowing down to prepare for the turn...");
                   turnIncoming := True;
                when OBSTRUCTION =>
                   Put_Line("Obstruction detected...");
@@ -62,7 +68,7 @@ begin
          Put_Line("Car parked at destination!");
          endJourney := False;
          changeGear(PARKED);
-      else
+      elsif car.gear /= PARKED then
          Put_Line("Battery:"& car.battery'Image &"%, speed:"& car.speed'Image);
       end if;
 
