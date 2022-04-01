@@ -19,4 +19,9 @@ package body World with SPARK_Mode is
    begin
       car.gear := gear;
    end changeGear;
+
+   procedure diagnosticsSwitch is
+   begin
+      car.diagnosticsOn := car.diagnosticsOn /= True;
+   end;
 end World;

@@ -30,4 +30,11 @@ package World with SPARK_Mode is
      not (car.speed > 0 or
          (car.battery <= 10 and car.gear = PARKED)),
      Post => car.gear /= car.gear;
+
+   procedure diagnosticsSwitch with
+     Pre => not car.engineOn and
+     car.gear = PARKED and
+     car.speed = 0 and
+     car.battery >= 50,
+     Post => car.diagnosticsOn /= car.diagnosticsOn;
 end World;
