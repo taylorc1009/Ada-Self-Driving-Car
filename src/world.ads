@@ -1,3 +1,5 @@
+with RandGen; use RandGen;
+
 package World with SPARK_Mode is
    -- Car
 
@@ -51,10 +53,13 @@ package World with SPARK_Mode is
 
 
    --World
-
    type WorldType is record
-      curStreetIsLast : Boolean := False;
-      curStreetSpeedLimit : Integer := 0;
-      numTurnsUntilDestination : Integer := 0;
+      curStreetSpeedLimit : RandRange := 0;
+      numTurnsUntilDestination : RandRange := 0;
+      numTurnsTaken : Integer := 0;
    end record;
+
+   world : WorldType;
+
+   procedure initialiseRoute;
 end World;

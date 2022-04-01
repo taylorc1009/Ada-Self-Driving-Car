@@ -29,4 +29,19 @@ package body World with SPARK_Mode is
    begin
       car.speed := car.speed + value;
    end modifySpeed;
+
+   procedure initialiseRoute is
+   begin
+      world.numTurnsTaken := 0;
+
+      world.curStreetSpeedLimit := RandGen.generate(7) * 10;
+      while world.curStreetSpeedLimit = 0 loop
+         world.curStreetSpeedLimit := RandGen.generate(7) * 10;
+      end loop;
+
+      world.numTurnsUntilDestination := RandGen.generate(10);
+      while world.curStreetSpeedLimit = 0 loop
+         world.numTurnsUntilDestination := RandGen.generate(10);
+      end loop;
+   end initialiseRoute;
 end World;

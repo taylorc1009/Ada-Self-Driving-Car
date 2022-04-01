@@ -5,6 +5,8 @@ with RandGen; use RandGen;
 procedure Main is
    inputStr : String(1..2);
    inputLast : Natural := 1;
+   scenarioProbability : RandRange := 0;
+   scenario : RandRange := 0;
 begin
    while car.battery > 0 loop
       if car.engineOn = False then
@@ -28,7 +30,13 @@ begin
          end case;
          Put_Line("Gear changed to: "& car.gear'Image);
       else
-         null;
+         scenarioProbability := RandGen.generate(100);
+         if scenarioProbability < 5 then -- 25% chance of unusual scenario
+            scenario := RandGen.generate(1); -- adjust this integer to match the number of world scenarios the car can encounter
+            Put_Line("scenarion"& scenario'Image);
+         elsif 5 <= scenarioProbability and scenarioProbability < 15 then
+            Put_Line("turn");
+         end if;
       end if;
 
       if warnLowBattery then
