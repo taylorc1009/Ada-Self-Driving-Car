@@ -31,7 +31,7 @@ begin
       if warnLowBattery then
          Put_Line("Warning:"& car.battery'Image &"% battery remaining");
       else
-         Put_Line("Battery:"& car.battery'Image &"%");
+         Put_Line("Battery:"& car.battery'Image &"%, speed:"& car.speed'Image);
       end if;
 
       dischargeBattery;
