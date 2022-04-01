@@ -21,14 +21,16 @@ package World with SPARK_Mode is
    function warnLowBattery return Boolean;
 
    procedure engineSwitch with
-     Pre => car.gear = PARKED,
+     Pre => car.gear = PARKED and
+     not car.diagnosticsOn,
      Post => car.engineOn /= car.engineOn;
 
    procedure changeGear (gear : in CarGear) with
      Pre => car.engineOn = True and
      gear /= car.gear and
      not (car.speed > 0 or
-         (car.battery <= 10 and car.gear = PARKED)),
+         (car.battery <= 10 and car.gear = PARKED) or
+         car.diagnosticsOn),
      Post => car.gear /= car.gear;
 
    procedure diagnosticsSwitch with
