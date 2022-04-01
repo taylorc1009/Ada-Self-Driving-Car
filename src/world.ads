@@ -40,10 +40,10 @@ package World with SPARK_Mode is
      car.battery >= 50,
      Post => car.diagnosticsOn /= car.diagnosticsOn;
 
-   procedure modifySpeed (direction : in Integer) with
-     Pre => (direction = 1 or direction = -1) and
-     car.gear /= PARKED and
+   procedure modifySpeed (value : in MilesPerHour) with
+     Pre => car.gear /= PARKED and
      car.engineOn and
-     car.battery > 0,
+     car.battery > 0 and
+     (value = 1 or value = -1),
      Post => car.speed /= car.speed;
 end World;

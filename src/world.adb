@@ -25,8 +25,8 @@ package body World with SPARK_Mode is
       car.diagnosticsOn := car.diagnosticsOn /= True;
    end;
 
-   procedure modifySpeed (direction : in Integer) is
+   procedure modifySpeed (value : in MilesPerHour) is
    begin
-      car.speed := car.speed + 1;
+      car.speed := car.speed + value;
    end modifySpeed;
 end World;
