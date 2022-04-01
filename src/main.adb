@@ -31,9 +31,9 @@ begin
          Put_Line("Gear changed to: "& car.gear'Image);
       else
          scenarioProbability := RandGen.generate(100);
-         if scenarioProbability < 5 then -- 25% chance of unusual scenario
+         if scenarioProbability < 5 then -- 5% chance of unusual scenario
             scenario := RandGen.generate(1); -- adjust this integer to match the number of world scenarios the car can encounter
-            Put_Line("scenarion"& scenario'Image);
+            Put_Line("scenario"& scenario'Image);
          elsif 5 <= scenarioProbability and scenarioProbability < 15 then
             Put_Line("turn");
          end if;
