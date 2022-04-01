@@ -53,6 +53,8 @@ package World with SPARK_Mode is
 
 
    --World
+   type WorldScenario is (TURN, OBSTRUCTION, NO_SCENARIO);
+
    type WorldType is record
       curStreetSpeedLimit : RandRange := 0;
       numTurnsUntilDestination : RandRange := 0;
@@ -62,4 +64,6 @@ package World with SPARK_Mode is
    world : WorldType;
 
    procedure initialiseRoute;
+
+   function generateScenario return WorldScenario;
 end World;
