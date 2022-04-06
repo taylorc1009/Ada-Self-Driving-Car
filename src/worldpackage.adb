@@ -18,7 +18,7 @@ package body WorldPackage with SPARK_Mode is
             car.battery := 100;
          end if;
       end if;
-   end;
+   end engineSwitch;
 
    procedure changeGear (gear : in CarGear) is
    begin
@@ -59,12 +59,21 @@ package body WorldPackage with SPARK_Mode is
    procedure carTurned is
    begin
       world.numTurnsTaken := world.numTurnsTaken + 1;
+      world.turnIncoming := False;
       generateSpeedLimit;
    end carTurned;
+
+   procedure arriveAtDestination is
+   begin
+      world.destinationReached := True;
+      world.lastDestinationReached := True;
+      changeGear(PARKED);
+   end arriveAtDestination;
 
    function generateScenario return WorldScenario is
    begin
       if world.numTurnsTaken = Integer'Value(world.numTurnsUntilDestination'Image) then
+         world.destinationReached := True;
          return ARRIVED;
       end if;
       case RandGen.generate(100) is
@@ -76,9 +85,21 @@ package body WorldPackage with SPARK_Mode is
                   return NO_SCENARIO; -- shouldn't occur as long as the integer above mathes the number of scenarios
             end case;
          when 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 => -- 10% chance of turning
+            world.turnIncoming := True;
             return TURN;
          when others =>
             return NO_SCENARIO;
       end case;
-   end;
+   end generateScenario;
+
+   function carConditionCheck return WorldMessage is
+   begin
+      if warnLowBattery then
+         return LOW_BATTERY;
+      elsif world.destinationReached and Integer'Value(car.speed'Image) = 0 then
+
+         return HAS_ARRIVED;
+      end if;
+      return GENERAL;
+   end carConditionCheck;
 end WorldPackage;

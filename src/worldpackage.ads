@@ -53,12 +53,15 @@ package WorldPackage with SPARK_Mode is
 
    --World
    type WorldScenario is (ARRIVED, TURN, OBSTRUCTION, NO_SCENARIO); -- note that TURN is a special scenario as it has a higher probability of occurring
+   type WorldMessage is (LOW_BATTERY, HAS_ARRIVED, GENERAL);
 
    type WorldType is record
       curStreetSpeedLimit : RandRange := 0;
       numTurnsUntilDestination : RandRange := 0;
       numTurnsTaken : Integer := 0;
       lastDestinationReached : Boolean := True;
+      destinationReached : Boolean := False;
+      turnIncoming : Boolean := False;
    end record;
 
    world : WorldType;
@@ -70,5 +73,9 @@ package WorldPackage with SPARK_Mode is
    procedure carTurned with
      Post => world.numTurnsTaken > world.numTurnsTaken;
 
+   procedure arriveAtDestination;
+
    function generateScenario return WorldScenario;
+
+   function carConditionCheck return WorldMessage;
 end WorldPackage;

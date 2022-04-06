@@ -5,8 +5,6 @@ with RandGen; use RandGen;
 procedure Main is
    inputStr : String(1..2);
    inputLast : Natural := 1;
-   turnIncoming : Boolean := False;
-   endJourney : Boolean := False;
    task Controller;
    task Driving is
       pragma Priority(10);
@@ -63,14 +61,12 @@ procedure Main is
    begin
       loop
          if car.engineOn and car.gear /= PARKED then
-            if not turnIncoming and not endJourney then
+            if not world.turnIncoming and not world.destinationReached then
                case generateScenario is
                   when ARRIVED =>
                      Put_Line("Car arrived at destination! Preparing to park...");
-                     endJourney := True;
                   when TURN =>
                      Put_Line("Upcoming turn: slowing down to prepare for the turn...");
-                     turnIncoming := True;
                   when OBSTRUCTION =>
                      Put_Line("Obstruction detected...");
                   when others =>
@@ -80,22 +76,23 @@ procedure Main is
                end case;
             elsif Integer'Value(car.speed'Image) = 0 then
                Put_Line("Car turned a corner!");
-               turnIncoming := False;
                carTurned;
             else
                modifySpeed(-1);
             end if;
-            dischargeBattery;
-         end if;
 
-         if warnLowBattery then
-            Put_Line("Warning:"& car.battery'Image &"% battery remaining");
-         elsif endJourney and Integer'Value(car.speed'Image) = 0 then
-            Put_Line("Car parked at destination!");
-            endJourney := False;
-            changeGear(PARKED);
-         elsif car.gear /= PARKED then
-            Put_Line("Battery:"& car.battery'Image &"%, speed:"& car.speed'Image);
+            case carConditionCheck is
+               when LOW_BATTERY =>
+                  Put_Line("Warning:"& car.battery'Image &"% battery remaining");
+               when HAS_ARRIVED =>
+                  arriveAtDestination;
+                  Put_Line("Car parked at destination!");
+               when GENERAL =>
+                  Put_Line("Battery:"& car.battery'Image &"%, speed:"& car.speed'Image);
+               when others =>
+                  null;
+            end case;
+            dischargeBattery;
          end if;
          delay 0.5;
       end loop;
