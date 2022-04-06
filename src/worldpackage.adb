@@ -43,7 +43,7 @@ package body WorldPackage with SPARK_Mode is
 
    procedure emergencyStop is
    begin
-      car.speed := MilesPerHour'First;
+      car.speed := 0;
    end emergencyStop;
 
    procedure generateSpeedLimit is
