@@ -35,6 +35,11 @@ package body WorldPackage with SPARK_Mode is
       car.speed := car.speed + value;
    end modifySpeed;
 
+   procedure emergencyStop is
+   begin
+      car.speed := MilesPerHour'First;
+   end emergencyStop;
+
    procedure generateSpeedLimit is
    begin
       world.curStreetSpeedLimit := RandGen.generate(3) * 10;
@@ -73,19 +78,17 @@ package body WorldPackage with SPARK_Mode is
    function generateScenario return WorldScenario is
    begin
       if world.numTurnsTaken = Integer'Value(world.numTurnsUntilDestination'Image) then
-         world.destinationReached := True;
          return ARRIVED;
       end if;
       case RandGen.generate(100) is
          when 1 | 2 | 3 | 4 | 5 => -- 5% chance of unusual scenario
             case RandGen.generate(1) is -- adjust this integer to match the number of world scenarios the car can encounter
-               when 1 =>
+               when 0 =>
                   return OBSTRUCTION;
                when others =>
                   return NO_SCENARIO; -- shouldn't occur as long as the integer above mathes the number of scenarios
             end case;
          when 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 => -- 10% chance of turning
-            world.turnIncoming := True;
             return TURN;
          when others =>
             return NO_SCENARIO;
@@ -97,7 +100,6 @@ package body WorldPackage with SPARK_Mode is
       if warnLowBattery then
          return LOW_BATTERY;
       elsif world.destinationReached and Integer'Value(car.speed'Image) = 0 then
-
          return HAS_ARRIVED;
       end if;
       return GENERAL;

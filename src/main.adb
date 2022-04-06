@@ -64,11 +64,14 @@ procedure Main is
             if not world.turnIncoming and not world.destinationReached then
                case generateScenario is
                   when ARRIVED =>
+                     world.destinationReached := True;
                      Put_Line("Car arrived at destination! Preparing to park...");
                   when TURN =>
+                     world.turnIncoming := True;
                      Put_Line("Upcoming turn: slowing down to prepare for the turn...");
                   when OBSTRUCTION =>
-                     Put_Line("Obstruction detected...");
+                     emergencyStop;
+                     Put_Line("Obstruction detected!");
                   when others =>
                      if Integer'Value(car.speed'Image) < Integer'Value(world.curStreetSpeedLimit'Image) then
                         modifySpeed(1);

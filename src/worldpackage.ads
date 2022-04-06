@@ -50,6 +50,12 @@ package WorldPackage with SPARK_Mode is
      (value = 1 or value = -1),
      Post => car.speed /= car.speed;
 
+   procedure emergencyStop with
+     Pre => car.speed > 0 and
+     car.engineOn and
+     not car.diagnosticsOn and
+     car.gear = DRIVE,
+     Post => car.speed = 0;
 
    --World
    type WorldScenario is (ARRIVED, TURN, OBSTRUCTION, NO_SCENARIO); -- note that TURN is a special scenario as it has a higher probability of occurring
