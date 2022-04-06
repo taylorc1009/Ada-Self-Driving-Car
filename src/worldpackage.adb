@@ -62,7 +62,7 @@ package body WorldPackage with SPARK_Mode is
       generateSpeedLimit;
 
       world.numTurnsUntilDestination := RandGen.generate(3);
-      while world.curStreetSpeedLimit = 0 loop
+      while world.numTurnsUntilDestination = 0 loop
          world.numTurnsUntilDestination := RandGen.generate(3);
       end loop;
    end initialiseRoute;
