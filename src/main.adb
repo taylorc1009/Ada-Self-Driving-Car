@@ -23,6 +23,8 @@ procedure Main is
          Put_Line("At any time, select an option for the car to do:");
          Put_Line(" - 0 = toggle engine");
          Put_Line(" - 1 = change gear");
+         Put_Line(" - 2 = toggle diagnostics mode");
+         Put_Line(" - anything else = exit car");
          Get_Line(inputStr, inputLast);
 
          case inputStr(1) is
@@ -49,9 +51,18 @@ procedure Main is
                end case;
                Put_Line("Gear: "& car.gear'Image);
                initialiseRoute;
+            when '2' =>
+               diagnosticsSwitch;
+               Put_Line("Diagnostics mode enabled; this takes 10 seconds");
             when others =>
-               abort Driving;
-               exit;
+               if car.speed /= 0 then
+                  Put_Line("You cannot exit the car when it is in motion");
+               elsif car.engineOn then
+                  Put_Line("Please turn the engine off before exiting the car");
+               else
+                  abort Driving;
+                  exit;
+               end if;
          end case;
          Put_Line("");
       end loop;
