@@ -12,7 +12,7 @@ package body WorldPackage with SPARK_Mode is
 
    procedure engineSwitch is
    begin
-      if car.gear = PARKED and not (car.battery = 0 and not car.engineOn) then
+      if car.gear = PARKED and not (car.battery = 0 and not car.engineOn) and not car.diagnosticsOn then
          car.engineOn := car.engineOn /= True;
          if car.engineOn = False then
             car.battery := 100;
@@ -22,7 +22,7 @@ package body WorldPackage with SPARK_Mode is
 
    procedure changeGear (gear : in CarGear) is
    begin
-      if car.engineOn and car.speed = 0 then
+      if car.engineOn and car.speed = 0 and not car.diagnosticsOn then
          car.gear := gear;
       end if;
    end changeGear;
