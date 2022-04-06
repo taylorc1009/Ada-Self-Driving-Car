@@ -70,12 +70,10 @@ procedure Main is
                      world.turnIncoming := True;
                      Put_Line("Upcoming turn: slowing down to prepare for the turn...");
                   when OBSTRUCTION =>
+                     Put_Line("Obstruction detected! Performing EMERGENCY STOP");
                      emergencyStop;
-                     Put_Line("Obstruction detected!");
                   when others =>
-                     if Integer'Value(car.speed'Image) < Integer'Value(world.curStreetSpeedLimit'Image) then
-                        modifySpeed(1);
-                     end if;
+                     modifySpeed(1);
                end case;
             elsif Integer'Value(car.speed'Image) = 0 then
                Put_Line("Car turned a corner!");

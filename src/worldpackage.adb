@@ -22,17 +22,23 @@ package body WorldPackage with SPARK_Mode is
 
    procedure changeGear (gear : in CarGear) is
    begin
-      car.gear := gear;
+      if car.engineOn and car.speed = 0 then
+         car.gear := gear;
+      end if;
    end changeGear;
 
    procedure diagnosticsSwitch is
    begin
-      car.diagnosticsOn := car.diagnosticsOn /= True;
+      if not car.engineOn and car.battery > 0 and car.speed = 0 and car.gear = PARKED then
+         car.diagnosticsOn := car.diagnosticsOn /= True;
+      end if;
    end;
 
    procedure modifySpeed (value : in MilesPerHour) is
    begin
-      car.speed := car.speed + value;
+      if (value > 0 and Integer'Value(car.speed'Image) < Integer'Value(world.curStreetSpeedLimit'Image)) or (value < 0 and Integer'Value(car.speed'Image) > 0) then
+         car.speed := car.speed + value;
+      end if;
    end modifySpeed;
 
    procedure emergencyStop is
