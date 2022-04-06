@@ -48,9 +48,9 @@ package body WorldPackage with SPARK_Mode is
 
    procedure generateSpeedLimit is
    begin
-      world.curStreetSpeedLimit := RandGen.generate(3) * 10;
+      world.curStreetSpeedLimit := RandGen.generate(2) * 10;
       while world.curStreetSpeedLimit = 0 loop
-         world.curStreetSpeedLimit := RandGen.generate(3) * 10;
+         world.curStreetSpeedLimit := RandGen.generate(2) * 10;
       end loop;
    end generateSpeedLimit;
 
@@ -61,9 +61,9 @@ package body WorldPackage with SPARK_Mode is
 
       generateSpeedLimit;
 
-      world.numTurnsUntilDestination := RandGen.generate(5);
+      world.numTurnsUntilDestination := RandGen.generate(3);
       while world.curStreetSpeedLimit = 0 loop
-         world.numTurnsUntilDestination := RandGen.generate(5);
+         world.numTurnsUntilDestination := RandGen.generate(3);
       end loop;
    end initialiseRoute;
 
