@@ -15,14 +15,14 @@ procedure Main is
    task body Controller is
    begin
       loop
-         Put_Line("Car condition:");
+         Put_Line("Car's current condition:");
          Put_Line(" - Engine: "& (if car.engineOn then "ON" else "OFF"));
          Put_Line(" - Gear: "& car.gear'Image);
          Put_Line(" - Diagnostics Mode: "& (if car.diagnosticsOn then "ON" else "OFF"));
          Put_Line(" - Battery Level: "& car.battery'Image);
          Put_Line(" - Current Speed: "& car.speed'Image);
          Put_Line("");
-         Put_Line("Please select an option for the car to do:");
+         Put_Line("At any time, select an option for the car to do:");
          Put_Line(" - 0 = toggle engine");
          Put_Line(" - 1 = change gear");
          Get_Line(inputStr, inputLast);
