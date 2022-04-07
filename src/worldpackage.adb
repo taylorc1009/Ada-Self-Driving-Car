@@ -85,7 +85,6 @@ package body WorldPackage with SPARK_Mode is
 
    procedure arriveAtDestination is
    begin
-      world.destinationReached := True;
       world.lastDestinationReached := True;
       changeGear(PARKED);
    end arriveAtDestination;
@@ -114,10 +113,10 @@ package body WorldPackage with SPARK_Mode is
 
    function carConditionCheck return WorldMessage is
    begin
-      if warnLowBattery then
-         return LOW_BATTERY;
-      elsif world.destinationReached and Integer'Value(car.speed'Image) = 0 then
+      if world.destinationReached and Integer'Value(car.speed'Image) = 0 then
          return HAS_ARRIVED;
+      elsif warnLowBattery then
+         return LOW_BATTERY;
       end if;
       return GENERAL;
    end carConditionCheck;

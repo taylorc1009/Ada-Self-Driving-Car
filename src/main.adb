@@ -77,6 +77,7 @@ procedure Main is
             if not world.turnIncoming and not world.destinationReached and not car.forceNeedsCharged then
                case generateScenario is
                   when ARRIVED =>
+                     world.destinationReached := True;
                      Put_Line("Car arrived at destination! Preparing to park...");
                   when TURN =>
                      carTurn;
