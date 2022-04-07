@@ -13,14 +13,12 @@ procedure Main is
 
    task body Controller is
    begin
+      Put_Line("Car's current condition:");
+      Put_Line(" - Engine: "& (if car.engineOn then "ON" else "OFF"));
+      Put_Line(" - Gear: "& car.gear'Image);
+      Put_Line(" - Diagnostics Mode: "& (if car.diagnosticsOn then "ON" else "OFF"));
+      Put_Line("");
       loop
-         Put_Line("Car's current condition:");
-         Put_Line(" - Engine: "& (if car.engineOn then "ON" else "OFF"));
-         Put_Line(" - Gear: "& car.gear'Image);
-         Put_Line(" - Diagnostics Mode: "& (if car.diagnosticsOn then "ON" else "OFF"));
-         Put_Line(" - Battery Level: "& car.battery'Image);
-         Put_Line(" - Current Speed: "& car.speed'Image);
-         Put_Line("");
          Put_Line("At any time, select an option for the car to do:");
          Put_Line(" - 0 = toggle engine (car will charge while off)");
          Put_Line(" - 1 = change gear");
@@ -40,16 +38,16 @@ procedure Main is
                <<select_gear>>
                Get_Line(inputStr, inputLast);
                case inputStr(1) is
-               when '0' =>
-                  changeGear(DRIVE);
-                  initialiseRoute;
-               when '1' =>
-                  changeGear(REVERSING);
-               when '2' =>
-                  changeGear(PARKED);
-               when others =>
-                  Put_Line("(!) error: invalid entry, please enter a number within the given range");
-                  goto select_gear;
+                  when '0' =>
+                     changeGear(DRIVE);
+                     initialiseRoute;
+                  when '1' =>
+                     changeGear(REVERSING);
+                  when '2' =>
+                     changeGear(PARKED);
+                  when others =>
+                     Put_Line("(!) error: invalid entry, please enter a number within the given range");
+                     goto select_gear;
                end case;
                Put_Line("Gear: "& car.gear'Image);
             when '2' =>
@@ -74,7 +72,7 @@ procedure Main is
    begin
       loop
          if car.engineOn and car.gear /= PARKED then
-            if not world.turnIncoming and not world.destinationReached and not car.forceNeedsCharged then
+            if not (world.turnIncoming or world.destinationReached or car.forceNeedsCharged or car.parkRequested) then
                case generateScenario is
                   when ARRIVED =>
                      world.destinationReached := True;
@@ -93,6 +91,9 @@ procedure Main is
                   changeGear(PARKED);
                   engineSwitch;
                   Put_Line("Car powered off, please charge the car...");
+               elsif car.parkRequested then
+                  changeGear(PARKED);
+                  Put_Line("Park request complete!");
                else
                   Put_Line("Car turned a corner!");
                   carTurn;

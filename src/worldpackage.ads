@@ -13,6 +13,7 @@ package WorldPackage with SPARK_Mode is
       speed : MilesPerHour := 0;
       engineOn : Boolean := False;
       gear : CarGear := PARKED;
+      parkRequested : Boolean := False;
       diagnosticsOn : Boolean := False;
    end record;
 

@@ -1,7 +1,9 @@
 package body WorldPackage with SPARK_Mode is
    procedure dischargeBattery is
    begin
-      car.battery := car.battery - 1;
+      if car.gear /= PARKED then
+         car.battery := car.battery - 1;
+      end if;
    end dischargeBattery;
 
    procedure checkNeedsChargeEnforce is
@@ -28,6 +30,11 @@ package body WorldPackage with SPARK_Mode is
    begin
       if car.engineOn and car.speed = 0 and not car.diagnosticsOn and Integer'Value(car.battery'Image) >= MINIMUM_BATTERY then
          car.gear := gear;
+         if car.parkRequested then
+            car.parkRequested := False;
+         end if;
+      elsif car.speed > 0 and gear = PARKED and not car.forceNeedsCharged then
+         car.parkRequested := True;
       end if;
    end changeGear;
 
