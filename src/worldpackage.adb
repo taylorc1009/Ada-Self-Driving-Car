@@ -74,12 +74,14 @@ package body WorldPackage with SPARK_Mode is
       end if;
    end initialiseRoute;
 
-   procedure carTurned is
+   procedure carTurn is
    begin
-      world.numTurnsTaken := world.numTurnsTaken + 1;
-      world.turnIncoming := False;
-      generateSpeedLimit;
-   end carTurned;
+      world.turnIncoming := world.turnIncoming /= True;
+      if not world.turnIncoming then
+         world.numTurnsTaken := world.numTurnsTaken + 1;
+         generateSpeedLimit;
+      end if;
+   end carTurn;
 
    procedure arriveAtDestination is
    begin

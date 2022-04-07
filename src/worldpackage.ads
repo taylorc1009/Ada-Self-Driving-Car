@@ -80,7 +80,7 @@ package WorldPackage with SPARK_Mode is
 
    procedure initialiseRoute;
 
-   procedure carTurned with
+   procedure carTurn with
      Post => world.numTurnsTaken > world.numTurnsTaken;
 
    procedure arriveAtDestination;
