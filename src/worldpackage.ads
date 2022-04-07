@@ -5,8 +5,6 @@ package WorldPackage with SPARK_Mode is
    type BatteryLevel is new Integer range 0..100;
    type MilesPerHour is new Integer range -1..70;
    type CarGear is (PARKED, DRIVE, REVERSING);
-   task type DiagnosticsMode;
-   diagnosticsTask : DiagnosticsMode;
 
    type CarType is record
       battery : BatteryLevel := 100;

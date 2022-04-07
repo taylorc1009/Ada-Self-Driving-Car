@@ -1,5 +1,3 @@
-with Ada.Text_IO; use Ada.Text_IO;
-
 package body WorldPackage with SPARK_Mode is
    procedure dischargeBattery is
    begin
@@ -33,22 +31,8 @@ package body WorldPackage with SPARK_Mode is
    begin
       if not car.engineOn and car.battery > 0 and car.speed = 0 and car.gear = PARKED then
          car.diagnosticsOn := car.diagnosticsOn /= True;
-         if car.diagnosticsOn then
-            diagnosticsTask := new DiagnosticsMode;
-         end if;
       end if;
    end;
-
-   task body DiagnosticsMode is
-   begin
-      loop
-         if car.diagnosticsOn then
-            delay 10.0;
-            diagnosticsSwitch;
-            Put_Line("Diagnostics complete!");
-         end if;
-      end loop;
-   end DiagnosticsMode;
 
    procedure modifySpeed (value : in MilesPerHour) is
    begin

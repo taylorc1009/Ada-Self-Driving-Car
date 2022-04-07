@@ -5,10 +5,11 @@ with RandGen; use RandGen;
 procedure Main is
    inputStr : String(1..2);
    inputLast : Natural := 1;
-   task Controller;
-   task Driving is
+   task Controller is
       pragma Priority(10);
-   end Driving;
+   end Controller;
+   task Driving;
+   task DiagnosticsMode;
 
    task body Controller is
    begin
@@ -61,6 +62,7 @@ procedure Main is
                   Put_Line("Please turn the engine off before exiting the car");
                else
                   abort Driving;
+                  abort DiagnosticsMode;
                   exit;
                end if;
          end case;
@@ -109,6 +111,18 @@ procedure Main is
          delay 0.5;
       end loop;
    end Driving;
+
+   task body DiagnosticsMode is
+   begin
+      loop
+         -- ideally, the tread would wait until diagnostics is enabled instead of looping over an if statement to check this, but I'm unsure how to do this in SPARK
+         if car.diagnosticsOn then
+            delay 10.0;
+            diagnosticsSwitch;
+            Put_Line("Diagnostics complete!");
+         end if;
+      end loop;
+   end DiagnosticsMode;
 begin
    null;
 end Main;
