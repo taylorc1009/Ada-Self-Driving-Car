@@ -60,15 +60,18 @@ package body WorldPackage with SPARK_Mode is
 
    procedure initialiseRoute is
    begin
-      world.numTurnsTaken := 0;
-      world.lastDestinationReached := False;
+      if world.lastDestinationReached then
+         world.numTurnsTaken := 0;
+         world.lastDestinationReached := False;
+         world.destinationReached := False;
 
-      generateSpeedLimit;
+         generateSpeedLimit;
 
-      world.numTurnsUntilDestination := RandGen.generate(3);
-      while world.numTurnsUntilDestination = 0 loop
          world.numTurnsUntilDestination := RandGen.generate(3);
-      end loop;
+         while world.numTurnsUntilDestination = 0 loop
+            world.numTurnsUntilDestination := RandGen.generate(3);
+         end loop;
+      end if;
    end initialiseRoute;
 
    procedure carTurned is

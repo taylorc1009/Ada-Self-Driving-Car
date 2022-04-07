@@ -42,6 +42,7 @@ procedure Main is
                case inputStr(1) is
                when '0' =>
                   changeGear(DRIVE);
+                  initialiseRoute;
                when '1' =>
                   changeGear(REVERSING);
                when '2' =>
@@ -51,7 +52,6 @@ procedure Main is
                   goto select_gear;
                end case;
                Put_Line("Gear: "& car.gear'Image);
-               initialiseRoute;
             when '2' =>
                diagnosticsSwitch;
                Put_Line("Diagnostics mode enabled; this takes 10 seconds");
