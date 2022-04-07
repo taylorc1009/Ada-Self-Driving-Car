@@ -4,10 +4,14 @@ package body WorldPackage with SPARK_Mode is
       car.battery := car.battery - 1;
    end dischargeBattery;
 
+   procedure checkNeedsChargeEnforce is
+   begin
+      car.forceNeedsCharged := Integer'Value(car.battery'Image) <= Integer'Value(car.speed'Image) + 5; -- +5 so that the car does not use all the remaining battery to pull over
+   end checkNeedsChargeEnforce;
+
    function warnLowBattery return Boolean is
    begin
-      -- warnings will only be issued when the battery is at most 20%, and is a multiple of 5 as not to annoy the driver
-      return Integer'Value(car.battery'Image) <= MINIMUM_BATTERY and car.battery mod 5 = 0 and car.battery > 0;
+      return Integer'Value(car.battery'Image) <= MINIMUM_BATTERY and car.battery mod 5 = 0 and car.battery > 0; -- warnings will only be issued when the battery is at most 20%, and is a multiple of 5 as not to annoy the driver
    end warnLowBattery;
 
    procedure engineSwitch is
@@ -85,6 +89,8 @@ package body WorldPackage with SPARK_Mode is
    begin
       if world.numTurnsTaken = Integer'Value(world.numTurnsUntilDestination'Image) then
          return ARRIVED;
+      elsif car.forceNeedsCharged then
+         return NO_SCENARIO;
       end if;
       case RandGen.generate(100) is
          when 1 | 2 | 3 | 4 | 5 => -- 5% chance of unusual scenario

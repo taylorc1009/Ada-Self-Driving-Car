@@ -74,7 +74,7 @@ procedure Main is
    begin
       loop
          if car.engineOn and car.gear /= PARKED then
-            if not world.turnIncoming and not world.destinationReached then
+            if not world.turnIncoming and not world.destinationReached and not car.forceNeedsCharged then
                case generateScenario is
                   when ARRIVED =>
                      world.destinationReached := True;
@@ -89,8 +89,12 @@ procedure Main is
                      modifySpeed(1);
                end case;
             elsif Integer'Value(car.speed'Image) = 0 then
-               Put_Line("Car turned a corner!");
-               carTurned;
+               if car.forceNeedsCharged then
+                  changeGear(PARKED);
+               else
+                  Put_Line("Car turned a corner!");
+                  carTurned;
+               end if;
             else
                modifySpeed(-1);
             end if;
@@ -98,6 +102,9 @@ procedure Main is
             case carConditionCheck is
                when LOW_BATTERY =>
                   Put_Line("Warning:"& car.battery'Image &"% battery remaining");
+                  if car.forceNeedsCharged then
+                     Put_Line("Car predicted that there is insufficient battery remaining for the rest of the journey; slowing down and pulling over...");
+                  end if;
                when HAS_ARRIVED =>
                   arriveAtDestination;
                   Put_Line("Car parked at destination!");

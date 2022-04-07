@@ -9,6 +9,7 @@ package WorldPackage with SPARK_Mode is
 
    type CarType is record
       battery : BatteryLevel := 100;
+      forceNeedsCharged : Boolean := False;
       speed : MilesPerHour := 0;
       engineOn : Boolean := False;
       gear : CarGear := PARKED;
@@ -21,6 +22,8 @@ package WorldPackage with SPARK_Mode is
      Pre => car.battery > 0 and
      car.engineOn = True,
      Post => car.battery <= car.battery - 1;
+
+   procedure checkNeedsChargeEnforce;
 
    function warnLowBattery return Boolean;
 
