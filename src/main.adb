@@ -22,7 +22,7 @@ procedure Main is
          Put_Line(" - Current Speed: "& car.speed'Image);
          Put_Line("");
          Put_Line("At any time, select an option for the car to do:");
-         Put_Line(" - 0 = toggle engine");
+         Put_Line(" - 0 = toggle engine (car will charge while off)");
          Put_Line(" - 1 = change gear");
          Put_Line(" - 2 = toggle diagnostics mode");
          Put_Line(" - anything else = exit car");

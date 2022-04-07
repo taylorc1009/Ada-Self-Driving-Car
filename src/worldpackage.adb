@@ -14,7 +14,7 @@ package body WorldPackage with SPARK_Mode is
    begin
       if car.gear = PARKED and not (car.battery = 0 and not car.engineOn) and not car.diagnosticsOn then
          car.engineOn := car.engineOn /= True;
-         if car.engineOn = False then
+         if not car.engineOn then
             car.battery := 100;
          end if;
       end if;
