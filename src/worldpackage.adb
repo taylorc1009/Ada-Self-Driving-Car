@@ -99,7 +99,7 @@ package body WorldPackage with SPARK_Mode is
    function generateScenario return WorldScenario is
    begin
       if world.numTurnsTaken = Integer'Value(world.numTurnsUntilDestination'Image) then
-         return ARRIVED;
+         return (if RandGen.generate(100) < 15 then ARRIVED else NO_SCENARIO);
       elsif car.forceNeedsCharged then
          return NO_SCENARIO;
       end if;
