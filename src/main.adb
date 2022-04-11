@@ -89,7 +89,7 @@ procedure Main is
                   when others =>
                      modifySpeed(1);
                end case;
-            elsif Integer'Value(car.speed'Image) = 0 then -- car is stopped in this scenario
+            elsif Integer'Value(car.speed'Image) = 0 and not world.obstrucionPresent then -- car is stopped in this scenario
                if car.forceNeedsCharged and car.engineOn then
                   changeGear(PARKED);
                   engineSwitch;
@@ -102,6 +102,7 @@ procedure Main is
                   carTurn;
                end if;
             elsif car.speed = MilesPerHour'First and world.obstrucionPresent then
+               Put_Line("Car now has enough space to avoid obstruction; continuing on current route...");
                divertObstruction;
             else
                modifySpeed(-1);
