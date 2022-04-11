@@ -20,8 +20,9 @@ package WorldPackage with SPARK_Mode is
    car : CarType;
 
    procedure dischargeBattery with
-     Pre => car.battery > 0 and
-     car.engineOn = True,
+     Pre => car.battery > 0
+     and car.engineOn = True
+     and car.gear /= PARKED,
      Post => car.battery <= car.battery - 1;
 
    procedure checkNeedsChargeEnforce;
@@ -29,37 +30,39 @@ package WorldPackage with SPARK_Mode is
    function warnLowBattery return Boolean;
 
    procedure engineSwitch with
-     Pre => car.gear = PARKED and
-     not car.diagnosticsOn,
+     Pre => car.gear = PARKED
+     and not car.diagnosticsOn,
      Post => car.engineOn /= car.engineOn;
 
    procedure changeGear (gear : in CarGear) with
-     Pre => car.engineOn = True and
-     gear /= car.gear and
-     not (car.speed > 0 or
-         (car.battery <= 10 and car.gear = PARKED) or
-         car.diagnosticsOn),
+     Pre => car.engineOn = True
+     and gear /= car.gear
+     and not (car.speed > 0
+              or (car.battery <= 10 and car.gear = PARKED)
+              or car.diagnosticsOn),
      Post => car.gear /= car.gear;
 
    procedure diagnosticsSwitch with
-     Pre => not car.engineOn and
-     car.gear = PARKED and
-     car.speed = 0 and
-     car.battery >= 50,
-     Post => car.diagnosticsOn /= car.diagnosticsOn;
+     Pre => not car.engineOn
+     and car.gear = PARKED
+     and car.speed = 0
+     and car.battery >= MINIMUM_BATTERY,
+     Post => car.diagnosticsOn
+     or not car.diagnosticsOn;
 
    procedure modifySpeed (value : in MilesPerHour) with
-     Pre => car.gear /= PARKED and
-     car.engineOn and
-     car.battery > 0 and
-     (value = 1 or value = -1),
-     Post => car.speed /= car.speed;
+     Pre => car.gear /= PARKED
+     and car.engineOn
+     and car.battery > 0
+     and (value = 1 or value = -1),
+     Post => car.speed >= MilesPerHour'First
+     and car.speed <= MilesPerHour'Last;
 
    procedure emergencyStop with
-     Pre => car.speed > 0 and
-     car.engineOn and
-     not car.diagnosticsOn and
-     car.gear = DRIVE,
+     Pre => car.speed > 0
+     and car.engineOn
+     and not car.diagnosticsOn
+     and car.gear = DRIVE,
      Post => car.speed = 0;
 
    --World
