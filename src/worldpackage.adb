@@ -58,10 +58,11 @@ package body WorldPackage with SPARK_Mode is
    end emergencyStop;
 
    procedure generateSpeedLimit is
+      maxSpeed : RandRange := RandRange'Value(MilesPerHour'Last'Image) + 1; -- +1 ad RandGen is exclusive of the last value
    begin
-      world.curStreetSpeedLimit := RandGen.generate(2) * 10;
+      world.curStreetSpeedLimit := RandGen.generate(maxSpeed) * 10;
       while world.curStreetSpeedLimit = 0 loop
-         world.curStreetSpeedLimit := RandGen.generate(2) * 10;
+         world.curStreetSpeedLimit := RandGen.generate(maxSpeed) * 10;
       end loop;
    end generateSpeedLimit;
 

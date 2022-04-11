@@ -3,7 +3,7 @@ with RandGen; use RandGen;
 package WorldPackage with SPARK_Mode is
    -- Car
    type BatteryLevel is new Integer range 0..100;
-   type MilesPerHour is new Integer range -3..70;
+   type MilesPerHour is new Integer range -3..20;
    type CarGear is (PARKED, DRIVE, REVERSING);
    MINIMUM_BATTERY : constant Integer := 20;
 

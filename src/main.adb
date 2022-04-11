@@ -100,6 +100,8 @@ procedure Main is
                   Put_Line("Car turned a corner!");
                   carTurn;
                end if;
+            elsif car.speed = MilesPerHour'First and world.obstrucionPresent then
+               divertObstruction;
             else
                modifySpeed(-1);
             end if;
