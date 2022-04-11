@@ -28,7 +28,7 @@ package body WorldPackage with SPARK_Mode is
 
    procedure changeGear (gear : in CarGear) is
    begin
-      if car.engineOn and car.speed = 0 and not car.diagnosticsOn and Integer'Value(car.battery'Image) >= MINIMUM_BATTERY then
+      if car.engineOn and car.speed <= 0 and not car.diagnosticsOn and Integer'Value(car.battery'Image) >= MINIMUM_BATTERY then
          car.gear := gear;
          if car.parkRequested then
             car.parkRequested := False;
@@ -47,7 +47,7 @@ package body WorldPackage with SPARK_Mode is
 
    procedure modifySpeed (value : in MilesPerHour) is
    begin
-      if (value > 0 and Integer'Value(car.speed'Image) < Integer'Value(world.curStreetSpeedLimit'Image)) or (value < 0 and Integer'Value(car.speed'Image) > 0) then
+      if (value > 0 and Integer'Value(car.speed'Image) < Integer'Value(world.curStreetSpeedLimit'Image)) or (value < 0 and Integer'Value(car.speed'Image) > Integer'Value(MilesPerHour'First'Image)) then
          car.speed := car.speed + value;
       end if;
    end modifySpeed;
@@ -96,11 +96,21 @@ package body WorldPackage with SPARK_Mode is
       changeGear(PARKED);
    end arriveAtDestination;
 
+   procedure divertObstruction is
+   begin
+      world.obstrucionPresent := world.obstrucionPresent /= True;
+      if world.obstrucionPresent then
+         changeGear(REVERSING);
+      else
+         changeGear(DRIVE);
+      end if;
+   end divertObstruction;
+
    function generateScenario return WorldScenario is
    begin
       if world.numTurnsTaken = Integer'Value(world.numTurnsUntilDestination'Image) then
          return (if RandGen.generate(100) < 15 then ARRIVED else NO_SCENARIO);
-      elsif car.forceNeedsCharged then
+      elsif car.forceNeedsCharged or car.speed <= 0 then
          return NO_SCENARIO;
       end if;
       case RandGen.generate(100) is

@@ -3,7 +3,7 @@ with RandGen; use RandGen;
 package WorldPackage with SPARK_Mode is
    -- Car
    type BatteryLevel is new Integer range 0..100;
-   type MilesPerHour is new Integer range -1..70;
+   type MilesPerHour is new Integer range -3..70;
    type CarGear is (PARKED, DRIVE, REVERSING);
    MINIMUM_BATTERY : constant Integer := 20;
 
@@ -73,6 +73,7 @@ package WorldPackage with SPARK_Mode is
       lastDestinationReached : Boolean := True;
       destinationReached : Boolean := False;
       turnIncoming : Boolean := False;
+      obstrucionPresent : Boolean := False;
    end record;
 
    world : WorldType;
@@ -85,6 +86,8 @@ package WorldPackage with SPARK_Mode is
      Post => world.numTurnsTaken > world.numTurnsTaken;
 
    procedure arriveAtDestination;
+
+   procedure divertObstruction;
 
    function generateScenario return WorldScenario;
 

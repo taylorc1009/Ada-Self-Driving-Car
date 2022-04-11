@@ -72,7 +72,7 @@ procedure Main is
    begin
       loop
          if car.engineOn and car.gear /= PARKED then
-            if not (world.turnIncoming or world.destinationReached or car.forceNeedsCharged or car.parkRequested) then
+            if not (world.turnIncoming or world.destinationReached or car.forceNeedsCharged or car.parkRequested or car.gear = REVERSING) then
                case generateScenario is
                   when ARRIVED =>
                      world.destinationReached := True;
@@ -83,18 +83,20 @@ procedure Main is
                   when OBSTRUCTION =>
                      Put_Line("Obstruction detected! Performing EMERGENCY STOP");
                      emergencyStop;
+                     Put_Line("Reversing to divert obstruction...");
+                     divertObstruction;
                   when others =>
                      modifySpeed(1);
                end case;
-            elsif Integer'Value(car.speed'Image) = 0 then
-               if car.forceNeedsCharged then
+            elsif Integer'Value(car.speed'Image) = 0 then -- car is stopped in this scenario
+               if car.forceNeedsCharged and car.engineOn then
                   changeGear(PARKED);
                   engineSwitch;
                   Put_Line("Car powered off, please charge the car...");
                elsif car.parkRequested then
                   changeGear(PARKED);
                   Put_Line("Park request complete!");
-               else
+               elsif world.turnIncoming then
                   Put_Line("Car turned a corner!");
                   carTurn;
                end if;
