@@ -47,7 +47,7 @@ package body WorldPackage with SPARK_Mode is
 
    procedure modifySpeed (value : in MilesPerHour) is
    begin
-      if (value > 0 and Integer'Value(car.speed'Image) < Integer'Value(world.curStreetSpeedLimit'Image)) or (value < 0 and Integer'Value(car.speed'Image) > Integer'Value(MilesPerHour'First'Image)) then
+      if (value > 0 and Integer(car.speed) < Integer(world.curStreetSpeedLimit)) or (value < 0 and Integer(car.speed) > Integer(MilesPerHour'First)) then
          car.speed := car.speed + value;
       end if;
    end modifySpeed;
@@ -58,8 +58,8 @@ package body WorldPackage with SPARK_Mode is
    end emergencyStop;
 
    procedure generateSpeedLimit is
-      maxSpeedOption : Integer := (Integer'Value(MilesPerHour'Last'Image) / 10) + 1; -- +1 as RandGen is exclusive of the last value
-      optionRandRange : RandRange := RandRange'Value(maxSpeedOption'Image);
+      maxSpeedOption : Integer := (Integer(MilesPerHour'Last) / 10) + 1; -- +1 as RandGen is exclusive of the last value
+      optionRandRange : RandRange := RandRange(maxSpeedOption);
    begin
       world.curStreetSpeedLimit := RandGen.generate(optionRandRange) * 10;
       while world.curStreetSpeedLimit = 0 loop
@@ -110,7 +110,7 @@ package body WorldPackage with SPARK_Mode is
 
    function generateScenario return WorldScenario is
    begin
-      if world.numTurnsTaken = Integer'Value(world.numTurnsUntilDestination'Image) then
+      if world.numTurnsTaken = Integer(world.numTurnsUntilDestination) then
          return (if RandGen.generate(100) < 15 then ARRIVED else NO_SCENARIO);
       elsif car.forceNeedsCharged or car.speed <= 0 then
          return NO_SCENARIO;
@@ -132,7 +132,7 @@ package body WorldPackage with SPARK_Mode is
 
    function carConditionCheck return WorldMessage is
    begin
-      if world.destinationReached and Integer'Value(car.speed'Image) = 0 then
+      if world.destinationReached and Integer(car.speed) = 0 then
          return HAS_ARRIVED;
       elsif warnLowBattery then
          return LOW_BATTERY;

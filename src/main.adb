@@ -89,7 +89,7 @@ procedure Main is
                   when others =>
                      modifySpeed(1);
                end case;
-            elsif Integer'Value(car.speed'Image) = 0 and not world.obstructionPresent then -- car is stopped in this scenario
+            elsif Integer(car.speed) = 0 and not world.obstructionPresent then -- car is stopped in this scenario
                if car.forceNeedsCharged and car.engineOn then
                   changeGear(PARKED);
                   engineSwitch;
