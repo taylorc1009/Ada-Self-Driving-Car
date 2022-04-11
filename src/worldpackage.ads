@@ -31,7 +31,7 @@ package WorldPackage with SPARK_Mode is
      and not car.parkRequested
      and not car.diagnosticsOn
      and car.battery > 0
-     and Integer(car.speed) <= Integer'Last - 5;
+     and car.speed <= MilesPerHour'Last;
 
    function warnLowBattery return Boolean with
      Pre => car.engineOn
@@ -68,7 +68,9 @@ package WorldPackage with SPARK_Mode is
      and car.engineOn
      and car.battery > 0
      and (value = 1 or value = -1)
-     and not car.diagnosticsOn,
+     and not car.diagnosticsOn
+     and MilesPerHour'First <= car.speed
+     and car.speed <= MilesPerHour'Last,
      Post => car.speed >= MilesPerHour'First
      and car.speed <= MilesPerHour'Last;
 
@@ -84,7 +86,7 @@ package WorldPackage with SPARK_Mode is
    type WorldMessage is (LOW_BATTERY, HAS_ARRIVED, GENERAL);
 
    type WorldType is record
-      curStreetSpeedLimit : RandRange := 0;
+      curStreetSpeedLimit : MilesPerHour := 0;
       numTurnsUntilDestination : RandRange := 0;
       numTurnsTaken : Integer := 0;
       lastDestinationReached : Boolean := True;
@@ -102,7 +104,8 @@ package WorldPackage with SPARK_Mode is
      and car.battery > 0
      and not car.diagnosticsOn
      and not car.forceNeedsCharged,
-     Post => world.curStreetSpeedLimit > 0;
+     Post => world.curStreetSpeedLimit >= 10
+     and world.curStreetSpeedLimit <= 20; -- change 20 to match the max speed limit set as MulesPerHour'Last;  it isn't done automatically here because SPARK cannot prove them as the types are different
 
    procedure initialiseRoute with
      Pre => car.engineOn

@@ -7,5 +7,7 @@ package RandGen is
    
    gen : RandInt.Generator;
 
-   function generate(n : in RandRange) return RandRange;
+   function generate(n : in RandRange) return RandRange with
+     Pre => 0 <= n and n <= 100,
+     Post => generate'Result <= n;
 end RandGen;
