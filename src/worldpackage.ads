@@ -5,7 +5,7 @@ package WorldPackage with SPARK_Mode is
    type BatteryLevel is new Integer range 0..100;
    type MilesPerHour is new Integer range -3..20;
    type CarGear is (PARKED, DRIVE, REVERSING);
-   MINIMUM_BATTERY : constant Integer := 20;
+   MINIMUM_BATTERY : constant BatteryLevel := 20;
 
    type CarType is record
       battery : BatteryLevel := 100;
@@ -32,7 +32,8 @@ package WorldPackage with SPARK_Mode is
    procedure engineSwitch with
      Pre => car.gear = PARKED
      and not car.diagnosticsOn,
-     Post => car.engineOn /= car.engineOn;
+     Post => car.engineOn
+     or not car.engineOn;
 
    procedure changeGear (gear : in CarGear) with
      Pre => car.engineOn = True
@@ -46,7 +47,7 @@ package WorldPackage with SPARK_Mode is
      Pre => not car.engineOn
      and car.gear = PARKED
      and car.speed = 0
-     and car.battery >= MINIMUM_BATTERY,
+     and car.battery > MINIMUM_BATTERY,
      Post => car.diagnosticsOn
      or not car.diagnosticsOn;
 

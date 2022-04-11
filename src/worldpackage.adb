@@ -13,7 +13,7 @@ package body WorldPackage with SPARK_Mode is
 
    function warnLowBattery return Boolean is
    begin
-      return Integer'Value(car.battery'Image) <= MINIMUM_BATTERY and car.battery mod 5 = 0 and car.battery > 0; -- warnings will only be issued when the battery is at most 20%, and is a multiple of 5 as not to annoy the driver
+      return car.battery <= MINIMUM_BATTERY and car.battery mod 5 = 0 and car.battery > 0; -- warnings will only be issued when the battery is at most 20%, and is a multiple of 5 as not to annoy the driver
    end warnLowBattery;
 
    procedure engineSwitch is
@@ -28,7 +28,7 @@ package body WorldPackage with SPARK_Mode is
 
    procedure changeGear (gear : in CarGear) is
    begin
-      if car.engineOn and car.speed <= 0 and not car.diagnosticsOn and Integer'Value(car.battery'Image) >= MINIMUM_BATTERY then
+      if car.engineOn and car.speed <= 0 and not car.diagnosticsOn and car.battery >= MINIMUM_BATTERY then
          car.gear := gear;
          if car.parkRequested then
             car.parkRequested := False;
