@@ -21,17 +21,25 @@ package WorldPackage with SPARK_Mode is
 
    procedure dischargeBattery with
      Pre => car.battery > 0
-     and car.engineOn = True
+     and car.engineOn
      and car.gear /= PARKED,
-     Post => car.battery <= car.battery - 1;
+     Post => car.battery = car.battery - 1;
 
-   procedure checkNeedsChargeEnforce;
+   procedure checkNeedsChargeEnforce with
+     Pre => car.engineOn
+     and car.gear /= PARKED
+     and not car.forceNeedsCharged
+     and car.battery > 0;
 
-   function warnLowBattery return Boolean;
+   function warnLowBattery return Boolean with
+     Pre => car.engineOn
+     and car.battery > 0;
 
    procedure engineSwitch with
      Pre => car.gear = PARKED
-     and not car.diagnosticsOn,
+     and not car.diagnosticsOn
+     and car.speed = 0
+     and car.battery > 0,
      Post => car.engineOn
      or not car.engineOn;
 
@@ -41,7 +49,9 @@ package WorldPackage with SPARK_Mode is
      and not (car.speed > 0
               or (car.battery <= 10 and car.gear = PARKED)
               or car.diagnosticsOn),
-     Post => car.gear /= car.gear;
+     Post => car.gear = DRIVE
+     or car.gear = REVERSING
+     or car.gear = PARKED;
 
    procedure diagnosticsSwitch with
      Pre => not car.engineOn
@@ -55,7 +65,8 @@ package WorldPackage with SPARK_Mode is
      Pre => car.gear /= PARKED
      and car.engineOn
      and car.battery > 0
-     and (value = 1 or value = -1),
+     and (value = 1 or value = -1)
+     and not car.diagnosticsOn,
      Post => car.speed >= MilesPerHour'First
      and car.speed <= MilesPerHour'Last;
 
@@ -82,18 +93,67 @@ package WorldPackage with SPARK_Mode is
 
    world : WorldType;
 
-   procedure generateSpeedLimit;
+   procedure generateSpeedLimit with
+     Pre => car.engineOn
+     and car.gear /= PARKED
+     and car.speed = 0
+     and car.battery > 0
+     and not car.diagnosticsOn
+     and not car.forceNeedsCharged,
+     Post => world.curStreetSpeedLimit > 0;
 
-   procedure initialiseRoute;
+   procedure initialiseRoute with
+     Pre => car.engineOn
+     and car.gear /= PARKED
+     and car.battery > 0
+     and car.speed = 0
+     and not car.diagnosticsOn
+     and not car.forceNeedsCharged,
+     Post => world.curStreetSpeedLimit > 0
+     and world.numTurnsUntilDestination > 0
+     and not world.destinationReached
+     and not world.lastDestinationReached;
 
    procedure carTurn with
-     Post => world.numTurnsTaken > world.numTurnsTaken;
+     Pre => car.engineOn
+     and car.speed = 0
+     and car.battery > 0
+     and car.gear = DRIVE
+     and not car.diagnosticsOn
+     and not car.forceNeedsCharged,
+     Post => world.numTurnsTaken = world.numTurnsTaken + 1;
 
-   procedure arriveAtDestination;
+   procedure arriveAtDestination with
+     Pre => car.engineOn
+     and car.speed = 0
+     and car.battery > 0
+     and car.gear = DRIVE
+     and not car.diagnosticsOn
+     and not car.forceNeedsCharged,
+     Post => world.lastDestinationReached
+     and car.gear = PARKED;
 
-   procedure divertObstruction;
+   procedure divertObstruction with
+     Pre => car.engineOn
+     and car.speed = 0
+     and car.battery > 0
+     and car.gear = DRIVE
+     and not car.diagnosticsOn
+     and not car.forceNeedsCharged,
+     Post => car.gear /= PARKED;
 
-   function generateScenario return WorldScenario;
+   function generateScenario return WorldScenario with
+     Pre => car.engineOn
+     and car.battery > 0
+     and car.gear = DRIVE
+     and not car.diagnosticsOn
+     and not car.forceNeedsCharged
+     and not car.parkRequested;
 
-   function carConditionCheck return WorldMessage;
+   function carConditionCheck return WorldMessage with
+     Pre => car.engineOn
+     and car.battery > 0
+     and car.gear /= PARKED
+     and not car.forceNeedsCharged
+     and not car.diagnosticsOn;
 end WorldPackage;
