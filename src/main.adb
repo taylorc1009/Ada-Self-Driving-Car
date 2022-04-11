@@ -13,24 +13,25 @@ procedure Main is
 
    task body Controller is
    begin
-      Put_Line("Car's current condition:");
-      Put_Line(" - Engine: "& (if car.engineOn then "ON" else "OFF"));
-      Put_Line(" - Gear: "& car.gear'Image);
-      Put_Line(" - Diagnostics Mode: "& (if car.diagnosticsOn then "ON" else "OFF"));
-      Put_Line("");
       loop
          Put_Line("At any time, select an option for the car to do:");
-         Put_Line(" - 0 = toggle engine (car will charge while off)");
-         Put_Line(" - 1 = change gear");
-         Put_Line(" - 2 = toggle diagnostics mode");
+         Put_Line(" - 0 = display the car's conditions");
+         Put_Line(" - 1 = toggle engine (car will charge while off)");
+         Put_Line(" - 2 = change gear");
+         Put_Line(" - 3 = toggle diagnostics mode");
          Put_Line(" - anything else = exit car");
          Get_Line(inputStr, inputLast);
 
          case inputStr(1) is
             when '0' =>
+               Put_Line("Car's current condition:");
+               Put_Line(" - Engine: "& (if car.engineOn then "ON" else "OFF"));
+               Put_Line(" - Gear: "& car.gear'Image);
+               Put_Line(" - Diagnostics Mode: "& (if car.diagnosticsOn then "ON" else "OFF"));
+            when '1' =>
                engineSwitch;
                Put_Line("Engine: "& (if car.engineOn then "ON" else "OFF"));
-            when '1' =>
+            when '2' =>
                Put_Line("Enter a number to put the car into:");
                Put_Line(" - 0 = drive");
                Put_Line(" - 1 = reverse");
@@ -50,7 +51,7 @@ procedure Main is
                      goto select_gear;
                end case;
                Put_Line("Gear: "& car.gear'Image);
-            when '2' =>
+            when '3' =>
                diagnosticsSwitch;
                Put_Line("Diagnostics mode enabled; this takes 10 seconds");
             when others =>
