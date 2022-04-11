@@ -100,8 +100,8 @@ package body WorldPackage with SPARK_Mode is
 
    procedure divertObstruction is
    begin
-      world.obstrucionPresent := world.obstrucionPresent /= True;
-      if world.obstrucionPresent then
+      world.obstructionPresent := world.obstructionPresent /= True;
+      if world.obstructionPresent then
          changeGear(REVERSING);
       else
          changeGear(DRIVE);

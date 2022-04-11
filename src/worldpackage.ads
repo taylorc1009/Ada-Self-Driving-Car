@@ -73,7 +73,7 @@ package WorldPackage with SPARK_Mode is
       lastDestinationReached : Boolean := True;
       destinationReached : Boolean := False;
       turnIncoming : Boolean := False;
-      obstrucionPresent : Boolean := False;
+      obstructionPresent : Boolean := False;
    end record;
 
    world : WorldType;
