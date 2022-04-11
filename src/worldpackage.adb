@@ -8,7 +8,7 @@ package body WorldPackage with SPARK_Mode is
 
    procedure checkNeedsChargeEnforce is
    begin
-      car.forceNeedsCharged := Integer'Value(car.battery'Image) <= Integer'Value(car.speed'Image) + 5; -- +5 so that the car does not use all the remaining battery to pull over
+      car.forceNeedsCharged := Integer(car.battery) <= Integer(car.speed) + 5; -- +5 so that the car does not use all the remaining battery to pull over
    end checkNeedsChargeEnforce;
 
    function warnLowBattery return Boolean is
