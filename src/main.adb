@@ -123,9 +123,7 @@ procedure Main is
                when others =>
                   null;
             end case;
-            if car.gear /= PARKED then
-               dischargeBattery;
-            end if;
+            dischargeBattery;
          end if;
          delay 0.5;
       end loop;
