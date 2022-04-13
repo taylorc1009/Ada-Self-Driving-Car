@@ -1,7 +1,7 @@
 package body WorldPackage with SPARK_Mode is
    procedure dischargeBattery is
    begin
-      if car.gear /= PARKED then
+      if not (car.gear = PARKED and not car.diagnosticsOn) then
          car.battery := car.battery - 1;
       end if;
    end dischargeBattery;
@@ -36,7 +36,7 @@ package body WorldPackage with SPARK_Mode is
 
    procedure diagnosticsSwitch is
    begin
-      if not car.engineOn and car.battery > 0 and car.speed = 0 and car.gear = PARKED then
+      if not car.engineOn and car.battery > MINIMUM_BATTERY and car.speed = 0 and car.gear = PARKED then
          car.diagnosticsOn := car.diagnosticsOn /= True;
       end if;
    end;

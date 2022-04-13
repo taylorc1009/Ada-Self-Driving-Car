@@ -138,8 +138,12 @@ procedure Main is
          -- ideally, the tread would wait until diagnostics is enabled instead of looping over an if statement to check this, but I'm unsure how to do this in SPARK
          if car.diagnosticsOn then
             delay 10.0;
+            dischargeBattery;
             diagnosticsSwitch;
             Put_Line("Diagnostics complete!");
+            if warnLowBattery then
+               Put_Line("Warning:"& car.battery'Image &"% battery remaining");
+            end if;
          end if;
       end loop;
    end DiagnosticsMode;
