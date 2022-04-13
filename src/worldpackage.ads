@@ -77,7 +77,7 @@ package WorldPackage with SPARK_Mode is
 
    type WorldType is record
       curStreetSpeedLimit : MilesPerHour := 0;
-      numTurnsUntilDestination : RandRange := 0;
+      numTurnsUntilDestination : Integer := 0;
       numTurnsTaken : Integer := 0;
       destinationReached : Boolean := True; -- used to determine whether an old route was interuppted; will be False if this is the case
       turnIncoming : Boolean := False;
@@ -103,8 +103,10 @@ package WorldPackage with SPARK_Mode is
      and car.battery > MINIMUM_BATTERY
      and car.speed = 0
      and not car.diagnosticsOn
-     and not car.forceNeedsCharged,
-     Post => --world.curStreetSpeedLimit > 0 -- cannot be ensured by this function as it is ensured by "generateSpeedLimit" instead
+     and not car.forceNeedsCharged
+     and (not world.destinationReached
+          or (world.destinationReached and world.numTurnsTaken = world.numTurnsUntilDestination)),
+     Post => --world.curStreetSpeedLimit > 0 -- cannot be proved by this function as it is ensured by "generateSpeedLimit" instead
        world.numTurnsUntilDestination > 0
        and not world.destinationReached;
 
