@@ -50,7 +50,11 @@ procedure Main is
                      Put_Line("(!) error: invalid entry, please enter a number within the given range");
                      goto select_gear;
                end case;
-               Put_Line("Gear: "& car.gear'Image);
+               if car.parkRequested then
+                  Put_Line("Park requested; the car is preparing to pull over...");
+               else
+                  Put_Line("Gear: "& car.gear'Image);
+               end if;
             when '3' =>
                diagnosticsSwitch;
                Put_Line("Diagnostics mode enabled; this takes 10 seconds");
