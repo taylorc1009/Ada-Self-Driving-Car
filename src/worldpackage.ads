@@ -22,7 +22,8 @@ package WorldPackage with SPARK_Mode is
    procedure dischargeBattery with
      Pre => car.battery > 0
      and car.engineOn
-     and car.gear /= PARKED;
+     and car.gear /= PARKED,
+     Post => car.battery < car.battery'Old;
 
    function warnLowBattery return Boolean with
      Pre => car.engineOn
