@@ -61,14 +61,14 @@ package WorldPackage with SPARK_Mode is
      and not car.diagnosticsOn
      and MilesPerHour'First <= car.speed
      and car.speed <= MilesPerHour'Last,
-     Post => car.speed >= MilesPerHour'First
+     Post => MilesPerHour'First <= car.speed
      and car.speed <= MilesPerHour'Last;
 
    procedure emergencyStop with
      Pre => car.speed > 0
      and car.engineOn
      and not car.diagnosticsOn
-     and car.gear = DRIVE,
+     and car.gear /= PARKED,
      Post => car.speed = 0;
 
    --World
