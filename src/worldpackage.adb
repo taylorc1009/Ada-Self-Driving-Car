@@ -17,13 +17,14 @@ package body WorldPackage with SPARK_Mode is
          car.engineOn := car.engineOn /= True;
          if not car.engineOn then
             car.battery := 100;
+            car.forceNeedsCharged := False;
          end if;
       end if;
    end engineSwitch;
 
    procedure changeGear (gear : in CarGear) is
    begin
-      if car.engineOn and car.speed <= 0 and not car.diagnosticsOn and car.battery >= MINIMUM_BATTERY then
+      if car.engineOn and car.speed <= 0 and not car.diagnosticsOn and not (gear /= PARKED and car.forceNeedsCharged) then
          car.gear := gear;
          if car.parkRequested then
             car.parkRequested := False;
@@ -117,7 +118,7 @@ package body WorldPackage with SPARK_Mode is
          return HAS_ARRIVED;
       elsif warnLowBattery then
          return LOW_BATTERY;
-      elsif Integer(car.battery) <= Integer(car.speed) + 5 or car.battery <= MINIMUM_BATTERY then -- +5 so that the car does not use all the remaining battery to pull over
+      elsif (Integer(car.battery) <= Integer(car.speed) + 5 or car.battery <= MINIMUM_BATTERY) and not car.forceNeedsCharged then -- +5 so that the car does not use all the remaining battery to pull over
          return CHARGE_ENFORCED;
       end if;
       return GENERAL;

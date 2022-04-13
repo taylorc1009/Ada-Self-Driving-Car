@@ -96,7 +96,7 @@ procedure Main is
             elsif Integer(car.speed) = 0 and not world.obstructionPresent then -- car is stopped in this scenario
                if car.forceNeedsCharged and car.engineOn then
                   changeGear(PARKED);
-                  engineSwitch;
+                  --engineSwitch;
                   Put_Line("Car powered off, please charge the car...");
                elsif car.parkRequested then
                   changeGear(PARKED);
