@@ -56,9 +56,6 @@ package body WorldPackage with SPARK_Mode is
       optionRange : RandRange := RandRange(Integer(MilesPerHour'Last) / 10);
    begin
       world.curStreetSpeedLimit := MilesPerHour(RandGen.generate(optionRange) * 10);
-      while world.curStreetSpeedLimit = 0 loop
-         world.curStreetSpeedLimit := MilesPerHour(RandGen.generate(optionRange) * 10);
-      end loop;
    end generateSpeedLimit;
 
    procedure initialiseRoute is
@@ -69,10 +66,7 @@ package body WorldPackage with SPARK_Mode is
 
          generateSpeedLimit;
 
-         world.numTurnsUntilDestination := RandGen.generate(3);
-         while world.numTurnsUntilDestination = 0 loop
-            world.numTurnsUntilDestination := RandGen.generate(3);
-         end loop;
+         world.numTurnsUntilDestination := WorldTurns(RandGen.generate(RandRange(WorldTurns'Last)));
       end if;
    end initialiseRoute;
 
@@ -97,7 +91,7 @@ package body WorldPackage with SPARK_Mode is
 
    function generateScenario return WorldScenario is
    begin
-      if world.numTurnsTaken = Integer(world.numTurnsUntilDestination) then
+      if Integer(world.numTurnsTaken) = Integer(world.numTurnsUntilDestination) then
          return (if RandGen.generate(100) < 15 then ARRIVED else NO_SCENARIO);
       elsif car.forceNeedsCharged or car.speed <= 0 then
          return NO_SCENARIO;

@@ -74,11 +74,12 @@ package WorldPackage with SPARK_Mode is
    --World
    type WorldScenario is (ARRIVED, TURN, OBSTRUCTION, NO_SCENARIO); -- note that TURN is a special scenario as it has a higher probability of occurring
    type WorldMessage is (LOW_BATTERY, HAS_ARRIVED, CHARGE_ENFORCED, GENERAL);
+   type WorldTurns is new Integer range 0..3;
 
    type WorldType is record
       curStreetSpeedLimit : MilesPerHour := 0;
-      numTurnsUntilDestination : Integer := 0;
-      numTurnsTaken : Integer := 0;
+      numTurnsUntilDestination : WorldTurns := 0;
+      numTurnsTaken : WorldTurns := 0;
       destinationReached : Boolean := True; -- used to determine whether an old route was interuppted; will be False if this is the case
       turnIncoming : Boolean := False;
       obstructionPresent : Boolean := False;
@@ -117,7 +118,7 @@ package WorldPackage with SPARK_Mode is
      and car.gear = DRIVE
      and not car.diagnosticsOn
      and not car.forceNeedsCharged
-     and world.numTurnsTaken < Integer(RandRange'Last);
+     and Integer(world.numTurnsTaken) < Integer(WorldTurns'Last);
 
    procedure divertObstruction with
      Pre => car.engineOn
