@@ -25,7 +25,15 @@ package WorldPackage with SPARK_Mode is
           or not (not car.engineOn and car.gear = PARKED and not car.diagnosticsOn)),
      Post => car.battery < car.battery'Old;
 
-   function warnLowBattery return Boolean;
+   function warnLowBattery return Boolean with
+     Post => (warnLowBattery'Result
+     and car.battery mod 5 = 0
+     and car.battery <= MINIMUM_BATTERY
+     and car.battery > 0)
+     or (not warnLowBattery'Result
+     and (car.battery mod 5 > 0
+          or car.battery > MINIMUM_BATTERY
+          or car.battery = 0));
 
    procedure engineSwitch with
      Pre => car.gear = PARKED
