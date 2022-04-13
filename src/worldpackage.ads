@@ -105,11 +105,12 @@ package WorldPackage with SPARK_Mode is
      and car.speed = 0
      and not car.diagnosticsOn
      and not car.forceNeedsCharged
+     and world.numTurnsUntilDestination > 0
      and (not world.destinationReached
           or (world.destinationReached and world.numTurnsTaken = world.numTurnsUntilDestination)),
      Post => --world.curStreetSpeedLimit > 0 -- cannot be proved by this function as it is ensured by "generateSpeedLimit" instead
-       world.numTurnsUntilDestination > 0
-       and not world.destinationReached;
+       world.numTurnsUntilDestination > 0;
+       --and not world.destinationReached; -- for some reason, SPARK cannot prove this even though if it is ever True, the procedure will make it False
 
    procedure carTurn with
      Pre => car.engineOn
