@@ -51,8 +51,7 @@ package WorldPackage with SPARK_Mode is
      and car.gear = PARKED
      and car.speed = 0
      and car.battery > MINIMUM_BATTERY,
-     Post => car.diagnosticsOn
-     or not car.diagnosticsOn;
+     Post => car.diagnosticsOn /= car.diagnosticsOn'Old;
 
    procedure modifySpeed (value : in MilesPerHour) with
      Pre => car.gear /= PARKED
