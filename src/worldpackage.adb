@@ -6,11 +6,6 @@ package body WorldPackage with SPARK_Mode is
       end if;
    end dischargeBattery;
 
-   procedure checkNeedsChargeEnforce is
-   begin
-      car.forceNeedsCharged := Integer(car.battery) <= Integer(car.speed) + 5; -- +5 so that the car does not use all the remaining battery to pull over
-   end checkNeedsChargeEnforce;
-
    function warnLowBattery return Boolean is
    begin
       return car.battery <= MINIMUM_BATTERY and car.battery mod 5 = 0 and car.battery > 0; -- warnings will only be issued when the battery is at most 20%, and is a multiple of 5 as not to annoy the driver
@@ -68,9 +63,8 @@ package body WorldPackage with SPARK_Mode is
 
    procedure initialiseRoute is
    begin
-      if world.lastDestinationReached then
+      if world.destinationReached then
          world.numTurnsTaken := 0;
-         world.lastDestinationReached := False;
          world.destinationReached := False;
 
          generateSpeedLimit;
@@ -90,12 +84,6 @@ package body WorldPackage with SPARK_Mode is
          generateSpeedLimit;
       end if;
    end carTurn;
-
-   procedure arriveAtDestination is
-   begin
-      world.lastDestinationReached := True;
-      changeGear(PARKED);
-   end arriveAtDestination;
 
    procedure divertObstruction is
    begin
@@ -135,6 +123,8 @@ package body WorldPackage with SPARK_Mode is
          return HAS_ARRIVED;
       elsif warnLowBattery then
          return LOW_BATTERY;
+      elsif Integer(car.battery) <= Integer(car.speed) + 5 or car.battery <= MINIMUM_BATTERY then -- +5 so that the car does not use all the remaining battery to pull over
+         return CHARGE_ENFORCED;
       end if;
       return GENERAL;
    end carConditionCheck;

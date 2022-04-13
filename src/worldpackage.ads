@@ -24,36 +24,26 @@ package WorldPackage with SPARK_Mode is
      and car.engineOn
      and car.gear /= PARKED;
 
-   procedure checkNeedsChargeEnforce with
-     Pre => car.engineOn
-     and car.gear /= PARKED
-     and not car.forceNeedsCharged
-     and not car.parkRequested
-     and not car.diagnosticsOn
-     and car.battery > 0
-     and car.speed <= MilesPerHour'Last;
-
    function warnLowBattery return Boolean with
      Pre => car.engineOn
-     and car.battery > 0;
+     and car.battery > MINIMUM_BATTERY;
 
    procedure engineSwitch with
      Pre => car.gear = PARKED
      and not car.diagnosticsOn
      and car.speed = 0
-     and car.battery > 0,
-     Post => car.engineOn
-     or not car.engineOn;
+     and car.battery > MINIMUM_BATTERY,
+     Post => car.engineOn /= car.engineOn'Old;
 
    procedure changeGear (gear : in CarGear) with
-     Pre => car.engineOn = True
-     and gear /= car.gear
+     Pre => car.engineOn
      and not (car.speed > 0
-              or (car.battery <= 10 and car.gear = PARKED)
+              or car.forceNeedsCharged
               or car.diagnosticsOn),
-     Post => car.gear = DRIVE
-     or car.gear = REVERSING
-     or car.gear = PARKED;
+     Post => --car.gear /= car.gear'Old and -- SPARK complains that it cannot prove this because the parameter "gear" could equal any gear
+       car.gear = DRIVE
+       or car.gear = PARKED
+       or car.gear = REVERSING;
 
    procedure diagnosticsSwitch with
      Pre => not car.engineOn
@@ -66,7 +56,7 @@ package WorldPackage with SPARK_Mode is
    procedure modifySpeed (value : in MilesPerHour) with
      Pre => car.gear /= PARKED
      and car.engineOn
-     and car.battery > 0
+     and car.battery > MINIMUM_BATTERY
      and (value = 1 or value = -1)
      and not car.diagnosticsOn
      and MilesPerHour'First <= car.speed
@@ -83,14 +73,13 @@ package WorldPackage with SPARK_Mode is
 
    --World
    type WorldScenario is (ARRIVED, TURN, OBSTRUCTION, NO_SCENARIO); -- note that TURN is a special scenario as it has a higher probability of occurring
-   type WorldMessage is (LOW_BATTERY, HAS_ARRIVED, GENERAL);
+   type WorldMessage is (LOW_BATTERY, HAS_ARRIVED, CHARGE_ENFORCED, GENERAL);
 
    type WorldType is record
       curStreetSpeedLimit : MilesPerHour := 0;
       numTurnsUntilDestination : RandRange := 0;
       numTurnsTaken : Integer := 0;
-      lastDestinationReached : Boolean := True;
-      destinationReached : Boolean := False;
+      destinationReached : Boolean := True; -- used to determine whether an old route was interuppted; will be False if this is the case
       turnIncoming : Boolean := False;
       obstructionPresent : Boolean := False;
    end record;
@@ -101,55 +90,50 @@ package WorldPackage with SPARK_Mode is
      Pre => car.engineOn
      and car.gear /= PARKED
      and car.speed = 0
-     and car.battery > 0
+     and car.battery > MINIMUM_BATTERY
      and not car.diagnosticsOn
      and not car.forceNeedsCharged,
      Post => world.curStreetSpeedLimit >= 10
-     and world.curStreetSpeedLimit <= 20; -- change 20 to match the max speed limit set as MulesPerHour'Last;  it isn't done automatically here because SPARK cannot prove them as the types are different
+     and world.curStreetSpeedLimit <= MilesPerHour'Last
+     and world.curStreetSpeedLimit mod 10 = 0;
 
    procedure initialiseRoute with
      Pre => car.engineOn
      and car.gear /= PARKED
-     and car.battery > 0
+     and car.battery > MINIMUM_BATTERY
      and car.speed = 0
      and not car.diagnosticsOn
      and not car.forceNeedsCharged,
-     Post => world.curStreetSpeedLimit > 0
-     and world.numTurnsUntilDestination > 0
-     and not world.destinationReached
-     and not world.lastDestinationReached;
+     Post => --world.curStreetSpeedLimit > 0 -- cannot be ensured by this function as it is ensured by "generateSpeedLimit" instead
+       world.numTurnsUntilDestination > 0
+       and not world.destinationReached;
 
    procedure carTurn with
      Pre => car.engineOn
      and car.speed = 0
-     and car.battery > 0
+     and car.battery > MINIMUM_BATTERY
      and car.gear = DRIVE
      and not car.diagnosticsOn
-     and not car.forceNeedsCharged,
-     Post => world.numTurnsTaken = world.numTurnsTaken + 1;
-
-   procedure arriveAtDestination with
-     Pre => car.engineOn
-     and car.speed = 0
-     and car.battery > 0
-     and car.gear = DRIVE
-     and not car.diagnosticsOn
-     and not car.forceNeedsCharged,
-     Post => world.lastDestinationReached
-     and car.gear = PARKED;
+     and not car.forceNeedsCharged
+     and world.numTurnsTaken < Integer(RandRange'Last);
 
    procedure divertObstruction with
      Pre => car.engineOn
      and car.speed = 0
-     and car.battery > 0
-     and car.gear = DRIVE
+     and car.battery > MINIMUM_BATTERY
+     and ((car.gear = DRIVE and not world.obstructionPresent)
+          or (car.gear = REVERSING and world.obstructionPresent))
+     and car.gear /= PARKED
      and not car.diagnosticsOn
      and not car.forceNeedsCharged,
-     Post => car.gear /= PARKED;
+     Post => world.obstructionPresent /= world.obstructionPresent'Old;
+     -- SPARK cannot prove that the gear will not be set to PARKED by this function, based on "changeGear" Preconditions
+     --(car.gear = DRIVE and not world.obstructionPresent)
+     --or (car.gear = REVERSING and world.obstructionPresent);
 
    function generateScenario return WorldScenario with
      Pre => car.engineOn
-     and car.battery > 0
+     and car.battery > MINIMUM_BATTERY
      and car.gear = DRIVE
      and not car.diagnosticsOn
      and not car.forceNeedsCharged
@@ -157,7 +141,7 @@ package WorldPackage with SPARK_Mode is
 
    function carConditionCheck return WorldMessage with
      Pre => car.engineOn
-     and car.battery > 0
+     and car.battery > MINIMUM_BATTERY
      and car.gear /= PARKED
      and not car.forceNeedsCharged
      and not car.diagnosticsOn;

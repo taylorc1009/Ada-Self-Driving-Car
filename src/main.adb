@@ -108,15 +108,14 @@ procedure Main is
                modifySpeed(-1);
             end if;
 
-            checkNeedsChargeEnforce;
             case carConditionCheck is
                when LOW_BATTERY =>
                   Put_Line("Warning:"& car.battery'Image &"% battery remaining");
-                  if car.forceNeedsCharged then
-                     Put_Line("Car predicted that there is insufficient battery remaining for the rest of the journey; slowing down and pulling over...");
-                  end if;
+               when CHARGE_ENFORCED =>
+                  car.forceNeedsCharged := True;
+                  Put_Line("Car predicted that there is insufficient battery remaining for the rest of the journey; slowing down and pulling over...");
                when HAS_ARRIVED =>
-                  arriveAtDestination;
+                  changeGear(PARKED);
                   Put_Line("Car parked at destination!");
                when GENERAL =>
                   Put_Line("Battery:"& car.battery'Image &"%, speed:"& car.speed'Image);
