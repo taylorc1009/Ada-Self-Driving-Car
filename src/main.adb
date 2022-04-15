@@ -57,7 +57,7 @@ procedure Main is
                end if;
             when '3' =>
                diagnosticsSwitch;
-               Put_Line(if car.diagnosticsOn then "Diagnostics mode enabled; this takes 10 seconds" else "Car must be powered off to perform diagnostics");
+               Put_Line(if car.diagnosticsOn then "Diagnostics mode enabled; this takes 10 seconds" elsif car.engineOn then "Car must be powered off to perform diagnostics" else "Driver ended diagnostics prematurely");
             when others =>
                if car.speed /= 0 then
                   Put_Line("You cannot exit the car when it is in motion");
@@ -139,10 +139,12 @@ procedure Main is
          if car.diagnosticsOn then
             delay 10.0;
             dischargeBattery;
-            diagnosticsSwitch;
-            Put_Line("Diagnostics complete!");
-            if warnLowBattery then
-               Put_Line("Warning:"& car.battery'Image &"% battery remaining");
+            if car.diagnosticsOn then
+               diagnosticsSwitch;
+               Put_Line("Diagnostics complete!");
+               if warnLowBattery then
+                  Put_Line("Warning:"& car.battery'Image &"% battery remaining");
+               end if;
             end if;
          end if;
          delay 0.5;
