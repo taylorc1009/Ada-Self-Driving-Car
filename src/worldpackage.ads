@@ -74,7 +74,8 @@ package WorldPackage with SPARK_Mode is
      Pre => car.speed > 0
      and car.engineOn
      and not car.diagnosticsOn
-     and car.gear /= PARKED,
+     and car.gear /= PARKED
+     and world.obstructionPresent,
      Post => car.speed = 0;
 
    --World
