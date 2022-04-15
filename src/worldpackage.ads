@@ -138,7 +138,7 @@ package WorldPackage with SPARK_Mode is
      and not car.diagnosticsOn
      and not car.forceNeedsCharged,
      Post => world.obstructionPresent /= world.obstructionPresent'Old;
-     -- SPARK cannot prove that the gear will not be set to PARKED by this function, based on "changeGear" Preconditions
+     -- SPARK cannot prove that the gear will not be set to PARKED by this function, based on "changeGear" postconditions; "car.gear" could equal PARKED
      --(car.gear = DRIVE and not world.obstructionPresent)
      --or (car.gear = REVERSING and world.obstructionPresent);
 
