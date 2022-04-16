@@ -5,7 +5,7 @@ package RandGen is
    package RandInt is new Ada.Numerics.Discrete_Random(RandRange);
    use RandInt;
    
-   gen : RandInt.Generator;
+   generator : RandInt.Generator;
 
    function generate(n : in RandRange) return Integer with
      Post => generate'Result <= Integer(n)

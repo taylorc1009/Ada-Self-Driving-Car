@@ -108,8 +108,8 @@ package WorldPackage with SPARK_Mode is
    world : WorldType;
 
    procedure generateSpeedLimit with
-     Global => (In_Out => world, Proof_In => car, Input => gen),
-     Depends => (world => (world, gen)),
+     Global => (In_Out => world, Proof_In => car, Input => generator),
+     Depends => (world => (world, generator)),
      Pre => car.engineOn
      and car.gear /= PARKED
      and car.speed = 0
@@ -121,8 +121,8 @@ package WorldPackage with SPARK_Mode is
      and world.curStreetSpeedLimit mod 10 = 0;
 
    procedure initialiseRoute with
-     Global => (In_Out => world, Proof_In => car, Input => gen),
-     Depends => (world => (world, gen)),
+     Global => (In_Out => world, Proof_In => car, Input => generator),
+     Depends => (world => (world, generator)),
      Pre => car.engineOn
      and car.gear /= PARKED
      and car.battery > MINIMUM_BATTERY
@@ -137,8 +137,8 @@ package WorldPackage with SPARK_Mode is
        --and not world.destinationReached; -- for some reason, SPARK cannot prove this even though if it is ever True, the procedure will make it False
 
    procedure carTurn with
-     Global => (In_Out => world, Proof_In => car, Input => gen),
-     Depends => (world => (world, gen)),
+     Global => (In_Out => world, Proof_In => car, Input => generator),
+     Depends => (world => (world, generator)),
      Pre => car.engineOn
      and car.speed = 0
      and car.battery > MINIMUM_BATTERY
@@ -168,7 +168,7 @@ package WorldPackage with SPARK_Mode is
      --     or (car.gear = REVERSING and world.obstructionPresent));
 
    function generateScenario return WorldScenario with
-     Global => (Input => (world, gen, car)),
+     Global => (Input => (world, generator, car)),
      Pre => car.engineOn
      and car.battery > MINIMUM_BATTERY
      and car.gear /= PARKED
