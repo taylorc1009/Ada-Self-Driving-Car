@@ -151,8 +151,8 @@ package WorldPackage with SPARK_Mode is
      --    and world.numTurnsTaken > world.numTurnsTaken'Old);
 
    procedure divertObstruction with
-     Global => (In_Out => world, Proof_In => car),
-     Depends => (world => world),
+     Global => (In_Out => (world, car)),
+     Depends => (world => world, car => (world, car)),
      Pre => car.engineOn
      and car.speed = 0
      and car.battery > MINIMUM_BATTERY
