@@ -8,7 +8,7 @@ package body WorldPackage with SPARK_Mode is
 
    function warnLowBattery return Boolean is
    begin
-      return car.battery <= MINIMUM_BATTERY and car.battery mod 5 = 0 and car.battery > 0; -- warnings will only be issued when the battery is at most 20%, and is a multiple of 5 as not to annoy the driver
+      return car.battery <= MINIMUM_BATTERY and car.battery mod WARNING_INTERMISSION = 0 and car.battery > 0; -- warnings will only be issued when the battery is at most 20%, and is a multiple of 5 as not to annoy the driver
    end warnLowBattery;
 
    procedure engineSwitch is

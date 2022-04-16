@@ -6,6 +6,7 @@ package WorldPackage with SPARK_Mode is
    type MilesPerHour is new Integer range -3..20;
    type CarGear is (PARKED, DRIVE, REVERSING);
    MINIMUM_BATTERY : constant BatteryLevel := 20;
+   WARNING_INTERMISSION : constant BatteryLevel := MINIMUM_BATTERY / 4;
 
    type CarType is record
       battery : BatteryLevel := 100;
@@ -30,11 +31,11 @@ package WorldPackage with SPARK_Mode is
    function warnLowBattery return Boolean with
      Global => (Input => car),
      Post => (warnLowBattery'Result
-              and car.battery mod 5 = 0
+              and car.battery mod WARNING_INTERMISSION = 0
               and car.battery <= MINIMUM_BATTERY
               and car.battery > 0)
      or (not warnLowBattery'Result
-         and (car.battery mod 5 > 0
+         and (car.battery mod WARNING_INTERMISSION > 0
               or car.battery > MINIMUM_BATTERY
               or car.battery = 0));
 
