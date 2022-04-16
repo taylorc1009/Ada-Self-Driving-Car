@@ -28,6 +28,7 @@ package WorldPackage with SPARK_Mode is
      Post => car.battery < car.battery'Old;
 
    function warnLowBattery return Boolean with
+     Global => (Input => car),
      Post => (warnLowBattery'Result
               and car.battery mod 5 = 0
               and car.battery <= MINIMUM_BATTERY
@@ -167,6 +168,7 @@ package WorldPackage with SPARK_Mode is
      --     or (car.gear = REVERSING and world.obstructionPresent));
 
    function generateScenario return WorldScenario with
+     Global => (Input => (world, gen, car)),
      Pre => car.engineOn
      and car.battery > MINIMUM_BATTERY
      and car.gear /= PARKED
@@ -175,6 +177,7 @@ package WorldPackage with SPARK_Mode is
      and not car.parkRequested;
 
    function carConditionCheck return WorldMessage with
+     Global => (Input => (world, car)),
      Pre => car.engineOn
      and car.battery > MINIMUM_BATTERY
      and car.gear /= PARKED
