@@ -20,6 +20,8 @@ package WorldPackage with SPARK_Mode is
    car : CarType;
 
    procedure dischargeBattery with
+     Global => (In_Out => car),
+     Depends => (car => car),
      Pre => car.battery > 0
      and ((car.engineOn and car.gear /= PARKED)
           or not (not car.engineOn and car.gear = PARKED and not car.diagnosticsOn)),
@@ -36,6 +38,8 @@ package WorldPackage with SPARK_Mode is
               or car.battery = 0));
 
    procedure engineSwitch with
+     Global => (In_Out => car),
+     Depends => (car => car),
      Pre => car.gear = PARKED
      and not car.diagnosticsOn
      and car.speed = 0
@@ -43,6 +47,8 @@ package WorldPackage with SPARK_Mode is
      Post => car.engineOn /= car.engineOn'Old;
 
    procedure changeGear (gear : in CarGear) with
+     Global => (In_Out => car),
+     Depends => (car => (car, gear)),
      Pre => car.engineOn
      and not (car.speed > 0
               or car.forceNeedsCharged
@@ -53,6 +59,8 @@ package WorldPackage with SPARK_Mode is
        or car.gear = REVERSING;
 
    procedure diagnosticsSwitch with
+     Global => (In_Out => car),
+     Depends => (car => car),
      Pre => not car.engineOn
      and car.gear = PARKED
      and car.speed = 0
@@ -60,6 +68,8 @@ package WorldPackage with SPARK_Mode is
      Post => car.diagnosticsOn /= car.diagnosticsOn'Old;
 
    procedure modifySpeed (value : in MilesPerHour) with
+     Global => (In_Out => car, Input => world),
+     Depends => (car => (car, world, value)),
      Pre => car.gear /= PARKED
      and car.engineOn
      and car.battery > MINIMUM_BATTERY
@@ -71,6 +81,8 @@ package WorldPackage with SPARK_Mode is
      and car.speed <= MilesPerHour'Last;
 
    procedure emergencyStop with
+     Global => (In_Out => car, Proof_In => world),
+     Depends => (car => car),
      Pre => car.speed > 0
      and car.engineOn
      and not car.diagnosticsOn
@@ -95,6 +107,8 @@ package WorldPackage with SPARK_Mode is
    world : WorldType;
 
    procedure generateSpeedLimit with
+     Global => (In_Out => world, Proof_In => car, Input => gen),
+     Depends => (world => (world, gen)),
      Pre => car.engineOn
      and car.gear /= PARKED
      and car.speed = 0
@@ -106,6 +120,8 @@ package WorldPackage with SPARK_Mode is
      and world.curStreetSpeedLimit mod 10 = 0;
 
    procedure initialiseRoute with
+     Global => (In_Out => world, Proof_In => car, Input => gen),
+     Depends => (world => (world, gen)),
      Pre => car.engineOn
      and car.gear /= PARKED
      and car.battery > MINIMUM_BATTERY
@@ -120,6 +136,8 @@ package WorldPackage with SPARK_Mode is
        --and not world.destinationReached; -- for some reason, SPARK cannot prove this even though if it is ever True, the procedure will make it False
 
    procedure carTurn with
+     Global => (In_Out => world, Proof_In => car, Input => gen),
+     Depends => (world => (world, gen)),
      Pre => car.engineOn
      and car.speed = 0
      and car.battery > MINIMUM_BATTERY
@@ -127,8 +145,14 @@ package WorldPackage with SPARK_Mode is
      and not car.diagnosticsOn
      and not car.forceNeedsCharged
      and Integer(world.numTurnsTaken) < Integer(WorldTurns'Last);
+     --Post => (world.turnIncoming
+     --         and world.numTurnsTaken = world.numTurnsTaken'Old)
+     --or (not world.turnIncoming
+     --    and world.numTurnsTaken > world.numTurnsTaken'Old);
 
    procedure divertObstruction with
+     Global => (In_Out => world, Proof_In => car),
+     Depends => (world => world),
      Pre => car.engineOn
      and car.speed = 0
      and car.battery > MINIMUM_BATTERY
@@ -139,13 +163,13 @@ package WorldPackage with SPARK_Mode is
      and not car.forceNeedsCharged,
      Post => world.obstructionPresent /= world.obstructionPresent'Old;
      -- SPARK cannot prove that the gear will not be set to PARKED by this function, based on "changeGear" postconditions; "car.gear" could equal PARKED
-     --(car.gear = DRIVE and not world.obstructionPresent)
-     --or (car.gear = REVERSING and world.obstructionPresent);
+     --and ((car.gear = DRIVE and not world.obstructionPresent)
+     --     or (car.gear = REVERSING and world.obstructionPresent));
 
    function generateScenario return WorldScenario with
      Pre => car.engineOn
      and car.battery > MINIMUM_BATTERY
-     and car.gear = DRIVE
+     and car.gear /= PARKED
      and not car.diagnosticsOn
      and not car.forceNeedsCharged
      and not car.parkRequested;
