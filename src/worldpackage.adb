@@ -120,7 +120,9 @@ package body WorldPackage with SPARK_Mode is
          return LOW_BATTERY;
       elsif (Integer(car.battery) <= Integer(car.speed) + 5 or car.battery <= MINIMUM_BATTERY) and not car.forceNeedsCharged then -- +5 so that the car does not use all the remaining battery to pull over
          return CHARGE_ENFORCED;
+      elsif car.gear /= PARKED then
+         return GENERAL;
       end if;
-      return GENERAL;
+      return NO_MESSAGE;
    end carConditionCheck;
 end WorldPackage;
