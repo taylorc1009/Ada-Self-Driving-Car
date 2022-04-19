@@ -77,23 +77,28 @@ procedure Main is
    begin
       loop
          if car.engineOn and car.gear /= PARKED then
-            if not (world.turnIncoming or world.destinationReached or car.forceNeedsCharged or car.parkRequested or car.gear = REVERSING) then
-               case generateScenario is
-                  when ARRIVED =>
-                     world.destinationReached := True;
-                     Put_Line("Car arrived at destination! Preparing to park...");
-                  when TURN =>
-                     carTurn;
-                     Put_Line("Upcoming turn: slowing down to prepare for the turn...");
-                  when OBSTRUCTION =>
-                     Put_Line("Obstruction detected! Performing EMERGENCY STOP");
-                     emergencyStop;
-                     Put_Line("Reversing to divert obstruction...");
-                     divertObstruction;
-                  when others =>
-                     modifySpeed(1);
-               end case;
-            elsif Integer(car.speed) = 0 and not world.obstructionPresent then -- car is stopped in this scenario
+            case generateScenario is
+               when ARRIVED =>
+                  -- these assignments are here because "generateScenario" is a function and functions cannot perform assignments
+                  world.destinationReached := True;
+                  car.breaking := True;
+
+                  Put_Line("Car arrived at destination! Preparing to park...");
+               when TURN =>
+                  carTurn;
+                  Put_Line("Upcoming turn: slowing down to prepare for the turn...");
+               when OBSTRUCTION =>
+                  Put_Line("Obstruction detected! Performing EMERGENCY STOP");
+                  emergencyStop;
+                  Put_Line("Reversing to divert obstruction...");
+               when others =>
+                  modifySpeed(if car.gear = REVERSING or car.breaking then -1 else 1);
+            end case;
+
+            if Integer(car.speed) = 0 then -- car is stopped in this scenario
+               if world.obstructionPresent and car.gear /= REVERSING then -- the obstruction can be cleared because the car is now in drive
+                  world.obstructionPresent := False;
+               end if;
                if car.forceNeedsCharged and car.engineOn then
                   changeGear(PARKED);
                   --engineSwitch;
@@ -107,16 +112,17 @@ procedure Main is
                end if;
             elsif car.speed = MilesPerHour'First and world.obstructionPresent then
                Put_Line("Car now has enough space to avoid obstruction; continuing on current route...");
-               divertObstruction;
-            else
-               modifySpeed(-1);
+               changeGear(DRIVE);
             end if;
 
             case carConditionCheck is
                when LOW_BATTERY =>
                   Put_Line("Warning:"& car.battery'Image &"% battery remaining");
                when CHARGE_ENFORCED =>
+                  -- these assignments are here because "carConditionCheck" is a function and functions cannot perform assignments
                   car.forceNeedsCharged := True;
+                  car.breaking := True;
+
                   Put_Line("Car predicted that there is insufficient battery remaining for the rest of the journey; slowing down and pulling over...");
                when HAS_ARRIVED =>
                   changeGear(PARKED);

@@ -29,9 +29,10 @@ package body WorldPackage with SPARK_Mode is
          if car.parkRequested then
             car.parkRequested := False;
          end if;
-      elsif car.speed /= 0 and gear = PARKED and not car.forceNeedsCharged then
+      elsif car.speed /= 0 and gear = PARKED and not (car.forceNeedsCharged or world.obstructionPresent) then
          car.parkRequested := True;
       end if;
+      car.breaking := car.parkRequested;
    end changeGear;
 
    procedure diagnosticsSwitch is
@@ -51,6 +52,10 @@ package body WorldPackage with SPARK_Mode is
    procedure emergencyStop is
    begin
       car.speed := 0;
+      world.obstructionPresent := True;
+      if car.gear /= REVERSING then
+         changeGear(REVERSING);
+      end if;
    end emergencyStop;
 
    procedure generateSpeedLimit is
@@ -74,42 +79,36 @@ package body WorldPackage with SPARK_Mode is
    procedure carTurn is
    begin
       world.turnIncoming := world.turnIncoming /= True;
+      car.breaking := world.turnIncoming;
       if not world.turnIncoming then
          world.numTurnsTaken := world.numTurnsTaken + 1;
          generateSpeedLimit;
       end if;
    end carTurn;
 
-   procedure divertObstruction is
-   begin
-      world.obstructionPresent := world.obstructionPresent /= True;
-      if world.obstructionPresent then
-         changeGear(REVERSING);
-      else
-         changeGear(DRIVE);
-      end if;
-   end divertObstruction;
-
    function generateScenario return WorldScenario is
    begin
-      if Integer(world.numTurnsTaken) = Integer(world.numTurnsUntilDestination) then
-         return (if RandGen.generate(100) < 15 then ARRIVED else NO_SCENARIO);
-      elsif car.forceNeedsCharged or car.speed <= 0 then
-         return NO_SCENARIO;
-      end if;
-      case RandGen.generate(100) is
-         when 1 | 2 | 3 | 4 | 5 => -- 5% chance of unusual scenario
-            case RandGen.generate(1) is -- adjust this integer to match the number of world scenarios the car can encounter
-               when 1 =>
-                  return OBSTRUCTION;
-               when others =>
-                  return NO_SCENARIO; -- shouldn't occur as long as the integer above mathes the number of scenarios
-            end case;
-         when 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 => -- 10% chance of turning
-            return TURN;
-         when others =>
+      if not (world.turnIncoming or world.destinationReached or car.forceNeedsCharged or car.parkRequested or world.obstructionPresent or car.gear /= DRIVE) then
+         if Integer(world.numTurnsTaken) = Integer(world.numTurnsUntilDestination) then
+            return (if RandGen.generate(100) < 15 then ARRIVED else NO_SCENARIO);
+         elsif car.forceNeedsCharged or car.speed <= 0 then
             return NO_SCENARIO;
-      end case;
+         end if;
+         case RandGen.generate(100) is
+            when 1 | 2 | 3 | 4 | 5 => -- 5% chance of unusual scenario
+               case RandGen.generate(1) is -- adjust this integer to match the number of world scenarios the car can encounter
+                  when 1 =>
+                     return OBSTRUCTION;
+                  when others =>
+                     return NO_SCENARIO; -- shouldn't occur as long as the integer above mathes the number of scenarios
+               end case;
+            when 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 => -- 10% chance of turning
+               return TURN;
+            when others =>
+               return NO_SCENARIO;
+         end case;
+      end if;
+      return NO_SCENARIO;
    end generateScenario;
 
    function carConditionCheck return WorldMessage is

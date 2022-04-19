@@ -14,6 +14,7 @@ package WorldPackage with SPARK_Mode is
       speed : MilesPerHour := 0;
       engineOn : Boolean := False;
       gear : CarGear := PARKED;
+      breaking : Boolean := False;
       parkRequested : Boolean := False;
       diagnosticsOn : Boolean := False;
    end record;
@@ -49,8 +50,8 @@ package WorldPackage with SPARK_Mode is
      Post => car.engineOn /= car.engineOn'Old;
 
    procedure changeGear (gear : in CarGear) with
-     Global => (In_Out => car),
-     Depends => (car => (car, gear)),
+     Global => (In_Out => car, Input => world),
+     Depends => (car => (car, gear, world)),
      Pre => car.engineOn
      and not (car.speed > 0
               or car.forceNeedsCharged
@@ -87,15 +88,21 @@ package WorldPackage with SPARK_Mode is
                       else car.speed'Old + value);
 
    procedure emergencyStop with
-     Global => (In_Out => car, Proof_In => world),
-     Depends => (car => car),
+     Global => (In_Out => (car, world)),
+     Depends => (car => (car, world), world => world),
      Pre => car.speed > 0
+     and car.battery > 0
      and car.engineOn
      and not (car.diagnosticsOn
-              or car.forceNeedsCharged)
-     and car.gear /= PARKED
-     and world.obstructionPresent,
-     Post => car.speed = 0;
+              or car.forceNeedsCharged
+              or world.obstructionPresent
+              or car.parkRequested
+              or world.turnIncoming
+              or car.breaking)
+     and car.gear = DRIVE,
+     Post => car.speed = 0
+     and world.obstructionPresent
+     and car.gear = REVERSING;
 
    --World
    type WorldScenario is (ARRIVED, TURN, OBSTRUCTION, NO_SCENARIO); -- note that TURN is a special scenario as it has a higher probability of occurring
@@ -144,8 +151,8 @@ package WorldPackage with SPARK_Mode is
        --and not world.destinationReached; -- for some reason, SPARK cannot prove this even though if it is ever True, the procedure will make it False
 
    procedure carTurn with
-     Global => (In_Out => world, Proof_In => car, Input => generator),
-     Depends => (world => (world, generator)),
+     Global => (In_Out => (world, car), Input => generator),
+     Depends => (world => (world, generator), car => (car, world)),
      Pre => car.engineOn
      and car.speed = 0
      and car.battery > MINIMUM_BATTERY
@@ -158,26 +165,11 @@ package WorldPackage with SPARK_Mode is
      --and (if world.turnIncoming then world.numTurnsTaken = world.numTurnsTaken'Old
      --     else world.numTurnsTaken > world.numTurnsTaken'Old);
 
-   procedure divertObstruction with
-     Global => (In_Out => (world, car)),
-     Depends => (world => world, car => (world, car)),
-     Pre => car.gear /= PARKED
-     and car.engineOn
-     and car.speed = 0
-     and car.battery > MINIMUM_BATTERY
-     and ((car.gear = DRIVE and not world.obstructionPresent)
-          or (car.gear = REVERSING and world.obstructionPresent))
-     and not (car.diagnosticsOn
-              or car.forceNeedsCharged),
-     Post => world.obstructionPresent /= world.obstructionPresent'Old;
-     -- SPARK cannot prove that the gear will not be set to PARKED by this function, based on "changeGear" postconditions; "car.gear" could equal PARKED
-     --and (car.gear = DRIVE or car.gear = REVERSING);
-
    function generateScenario return WorldScenario with
-     Global => (Input => (world, generator, car)),
+     Global => (Input => (world, car, generator)),
      Pre => car.engineOn
      and car.battery > MINIMUM_BATTERY
-     and car.gear /= PARKED
+     and car.gear = DRIVE
      and car.engineOn
      and not (car.diagnosticsOn
               or car.forceNeedsCharged)
