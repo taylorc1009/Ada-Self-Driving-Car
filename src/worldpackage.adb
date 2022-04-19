@@ -24,12 +24,12 @@ package body WorldPackage with SPARK_Mode is
 
    procedure changeGear (gear : in CarGear) is
    begin
-      if car.engineOn and car.speed <= 0 and not car.diagnosticsOn and not (gear /= PARKED and car.forceNeedsCharged) then
+      if car.engineOn and (car.speed = 0 or (car.speed < 0 and gear = DRIVE)) and not car.diagnosticsOn and not (gear /= PARKED and car.forceNeedsCharged) then
          car.gear := gear;
          if car.parkRequested then
             car.parkRequested := False;
          end if;
-      elsif car.speed > 0 and gear = PARKED and not car.forceNeedsCharged then
+      elsif car.speed /= 0 and gear = PARKED and not car.forceNeedsCharged then
          car.parkRequested := True;
       end if;
    end changeGear;
@@ -50,9 +50,7 @@ package body WorldPackage with SPARK_Mode is
 
    procedure emergencyStop is
    begin
-      if car.speed > 0 and car.gear /= PARKED and not (car.forceNeedsCharged or car.diagnosticsOn) and world.obstructionPresent then
-         car.speed := 0;
-      end if;
+      car.speed := 0;
    end emergencyStop;
 
    procedure generateSpeedLimit is
@@ -102,7 +100,7 @@ package body WorldPackage with SPARK_Mode is
       case RandGen.generate(100) is
          when 1 | 2 | 3 | 4 | 5 => -- 5% chance of unusual scenario
             case RandGen.generate(1) is -- adjust this integer to match the number of world scenarios the car can encounter
-               when 0 =>
+               when 1 =>
                   return OBSTRUCTION;
                when others =>
                   return NO_SCENARIO; -- shouldn't occur as long as the integer above mathes the number of scenarios

@@ -54,7 +54,9 @@ package WorldPackage with SPARK_Mode is
      Pre => car.engineOn
      and not (car.speed > 0
               or car.forceNeedsCharged
-              or car.diagnosticsOn),
+              or car.diagnosticsOn
+              or (car.speed < 0 and gear /= DRIVE))
+     and gear /= car.gear,
      Post => (if car.speed > 0 and gear = PARKED and not car.forceNeedsCharged then car.parkRequested
        elsif gear = PARKED then not car.parkRequested and car.gear = PARKED
        elsif gear /= car.gear then car.gear /= car.gear'Old);
@@ -85,8 +87,8 @@ package WorldPackage with SPARK_Mode is
                       else car.speed'Old + value);
 
    procedure emergencyStop with
-     Global => (In_Out => car, Input => world),
-     Depends => (car => (car, world)),
+     Global => (In_Out => car, Proof_In => world),
+     Depends => (car => car),
      Pre => car.speed > 0
      and car.engineOn
      and not (car.diagnosticsOn
@@ -159,19 +161,17 @@ package WorldPackage with SPARK_Mode is
    procedure divertObstruction with
      Global => (In_Out => (world, car)),
      Depends => (world => world, car => (world, car)),
-     Pre => car.engineOn
+     Pre => car.gear /= PARKED
+     and car.engineOn
      and car.speed = 0
      and car.battery > MINIMUM_BATTERY
      and ((car.gear = DRIVE and not world.obstructionPresent)
           or (car.gear = REVERSING and world.obstructionPresent))
-     and car.gear /= PARKED
-     and car.engineOn
      and not (car.diagnosticsOn
               or car.forceNeedsCharged),
      Post => world.obstructionPresent /= world.obstructionPresent'Old;
      -- SPARK cannot prove that the gear will not be set to PARKED by this function, based on "changeGear" postconditions; "car.gear" could equal PARKED
-     --and ((car.gear = DRIVE and not world.obstructionPresent)
-     --     or (car.gear = REVERSING and world.obstructionPresent));
+     --and (car.gear = DRIVE or car.gear = REVERSING);
 
    function generateScenario return WorldScenario with
      Global => (Input => (world, generator, car)),
