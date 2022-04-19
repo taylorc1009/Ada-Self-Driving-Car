@@ -55,10 +55,9 @@ package WorldPackage with SPARK_Mode is
      and not (car.speed > 0
               or car.forceNeedsCharged
               or car.diagnosticsOn),
-     Post => --car.gear /= car.gear'Old and -- SPARK complains that it cannot prove this because the parameter "gear" could equal any gear
-       car.gear = DRIVE
-       or car.gear = PARKED
-       or car.gear = REVERSING;
+     Post => (if car.speed > 0 and gear = PARKED and not car.forceNeedsCharged then car.parkRequested
+       elsif gear = PARKED then not car.parkRequested and car.gear = PARKED
+       elsif gear /= car.gear then car.gear /= car.gear'Old);
 
    procedure diagnosticsSwitch with
      Global => (In_Out => car),
@@ -78,9 +77,12 @@ package WorldPackage with SPARK_Mode is
      and (value = 1 or value = -1)
      and not car.diagnosticsOn
      and MilesPerHour'First <= car.speed
-     and car.speed <= MilesPerHour'Last,
+     and car.speed <= world.curStreetSpeedLimit,
      Post => MilesPerHour'First <= car.speed
-     and car.speed <= MilesPerHour'Last;
+     and car.speed <= world.curStreetSpeedLimit
+     and car.speed = (if car.speed'Old = world.curStreetSpeedLimit and value > 0 then world.curStreetSpeedLimit
+                      elsif car.speed'Old = MilesPerHour'First and value < 0 then MilesPerHour'First
+                      else car.speed'Old + value);
 
    procedure emergencyStop with
      Global => (In_Out => car, Proof_In => world),

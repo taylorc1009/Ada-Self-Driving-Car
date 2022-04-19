@@ -43,7 +43,7 @@ package body WorldPackage with SPARK_Mode is
 
    procedure modifySpeed (value : in MilesPerHour) is
    begin
-      if (value > 0 and Integer(car.speed) < Integer(world.curStreetSpeedLimit) and car.speed < MilesPerHour'Last) or (value < 0 and Integer(car.speed) > Integer(MilesPerHour'First) and car.speed > MilesPerHour'First) then
+      if (value > 0 and car.speed < world.curStreetSpeedLimit) or (value < 0 and car.speed > MilesPerHour'First) then
          car.speed := car.speed + value;
       end if;
    end modifySpeed;
