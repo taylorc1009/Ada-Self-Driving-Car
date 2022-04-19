@@ -45,7 +45,7 @@ package WorldPackage with SPARK_Mode is
      Pre => car.gear = PARKED
      and not car.diagnosticsOn
      and car.speed = 0
-     and car.battery > MINIMUM_BATTERY,
+     and car.battery > 0,
      Post => car.engineOn /= car.engineOn'Old;
 
    procedure changeGear (gear : in CarGear) with
@@ -85,11 +85,12 @@ package WorldPackage with SPARK_Mode is
                       else car.speed'Old + value);
 
    procedure emergencyStop with
-     Global => (In_Out => car, Proof_In => world),
-     Depends => (car => car),
+     Global => (In_Out => car, Input => world),
+     Depends => (car => (car, world)),
      Pre => car.speed > 0
      and car.engineOn
-     and not car.diagnosticsOn
+     and not (car.diagnosticsOn
+              or car.forceNeedsCharged)
      and car.gear /= PARKED
      and world.obstructionPresent,
      Post => car.speed = 0;
@@ -117,8 +118,9 @@ package WorldPackage with SPARK_Mode is
      and car.gear /= PARKED
      and car.speed = 0
      and car.battery > MINIMUM_BATTERY
-     and not car.diagnosticsOn
-     and not car.forceNeedsCharged,
+     and car.engineOn
+     and not (car.diagnosticsOn
+              or car.forceNeedsCharged),
      Post => world.curStreetSpeedLimit >= 10
      and world.curStreetSpeedLimit <= MilesPerHour'Last
      and world.curStreetSpeedLimit mod 10 = 0;
@@ -146,13 +148,13 @@ package WorldPackage with SPARK_Mode is
      and car.speed = 0
      and car.battery > MINIMUM_BATTERY
      and car.gear = DRIVE
-     and not car.diagnosticsOn
-     and not car.forceNeedsCharged
+     and car.engineOn
+     and not (car.diagnosticsOn
+              or car.forceNeedsCharged)
      and Integer(world.numTurnsTaken) < Integer(WorldTurns'Last);
-     --Post => (world.turnIncoming
-     --         and world.numTurnsTaken = world.numTurnsTaken'Old)
-     --or (not world.turnIncoming
-     --    and world.numTurnsTaken > world.numTurnsTaken'Old);
+     --Post => (world.turnIncoming /= world.turnIncoming'Old)
+     --and (if world.turnIncoming then world.numTurnsTaken = world.numTurnsTaken'Old
+     --     else world.numTurnsTaken > world.numTurnsTaken'Old);
 
    procedure divertObstruction with
      Global => (In_Out => (world, car)),
@@ -163,8 +165,9 @@ package WorldPackage with SPARK_Mode is
      and ((car.gear = DRIVE and not world.obstructionPresent)
           or (car.gear = REVERSING and world.obstructionPresent))
      and car.gear /= PARKED
-     and not car.diagnosticsOn
-     and not car.forceNeedsCharged,
+     and car.engineOn
+     and not (car.diagnosticsOn
+              or car.forceNeedsCharged),
      Post => world.obstructionPresent /= world.obstructionPresent'Old;
      -- SPARK cannot prove that the gear will not be set to PARKED by this function, based on "changeGear" postconditions; "car.gear" could equal PARKED
      --and ((car.gear = DRIVE and not world.obstructionPresent)
@@ -175,8 +178,9 @@ package WorldPackage with SPARK_Mode is
      Pre => car.engineOn
      and car.battery > MINIMUM_BATTERY
      and car.gear /= PARKED
-     and not car.diagnosticsOn
-     and not car.forceNeedsCharged
+     and car.engineOn
+     and not (car.diagnosticsOn
+              or car.forceNeedsCharged)
      and not car.parkRequested;
 
    function carConditionCheck return WorldMessage with
@@ -184,6 +188,7 @@ package WorldPackage with SPARK_Mode is
      Pre => car.engineOn
      and car.battery > MINIMUM_BATTERY
      and car.gear /= PARKED
-     and not car.forceNeedsCharged
-     and not car.diagnosticsOn;
+     and car.engineOn
+     and not (car.diagnosticsOn
+              or car.forceNeedsCharged);
 end WorldPackage;

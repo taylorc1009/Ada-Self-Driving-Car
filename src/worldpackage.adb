@@ -50,7 +50,9 @@ package body WorldPackage with SPARK_Mode is
 
    procedure emergencyStop is
    begin
-      car.speed := 0;
+      if car.speed > 0 and car.gear /= PARKED and not (car.forceNeedsCharged or car.diagnosticsOn) and world.obstructionPresent then
+         car.speed := 0;
+      end if;
    end emergencyStop;
 
    procedure generateSpeedLimit is
