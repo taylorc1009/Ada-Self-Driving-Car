@@ -60,10 +60,10 @@ package WorldPackage with SPARK_Mode is
               or (car.speed < 0 and gear /= DRIVE)
               or (world.obstructionPresent and (car.forceNeedsCharged or gear = PARKED))
               or (car.battery <= MINIMUM_BATTERY and gear /= PARKED)),
-     Post => (if car.speed > 0 and gear = PARKED then car.parkRequested and car.gear = car.gear'Old
-              elsif world.obstructionPresent then car.gear /= PARKED
-              elsif car.forceNeedsCharged and car.speed = 0 then car.gear = PARKED
-              else car.gear /= car.gear'Old);
+     Contract_Cases => (car.speed > 0 and gear = PARKED => car.parkRequested and car.gear = car.gear'Old,
+                        world.obstructionPresent => car.gear /= PARKED,
+                        car.forceNeedsCharged and car.speed = 0 => car.gear = PARKED,
+                        others => car.gear /= car.gear'Old);
 
    procedure diagnosticsSwitch with
      Global => (In_Out => car),
