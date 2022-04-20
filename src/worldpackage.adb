@@ -44,7 +44,7 @@ package body WorldPackage with SPARK_Mode is
 
    procedure modifySpeed (value : in MilesPerHour) is
    begin
-      if (value > 0 and car.speed < world.curStreetSpeedLimit) or (value < 0 and car.speed > MilesPerHour'First) then
+      if ((value > 0 and car.speed < world.curStreetSpeedLimit) or (value < 0 and car.speed > MilesPerHour'First)) and not (car.breaking and car.speed = 0) then
          car.speed := car.speed + value;
       end if;
    end modifySpeed;
@@ -53,9 +53,7 @@ package body WorldPackage with SPARK_Mode is
    begin
       car.speed := 0;
       world.obstructionPresent := True;
-      if car.gear /= REVERSING then
-         changeGear(REVERSING);
-      end if;
+      changeGear(REVERSING);
    end emergencyStop;
 
    procedure generateSpeedLimit is
@@ -88,7 +86,7 @@ package body WorldPackage with SPARK_Mode is
 
    function generateScenario return WorldScenario is
    begin
-      if not (world.turnIncoming or world.destinationReached or car.forceNeedsCharged or car.parkRequested or world.obstructionPresent or car.gear /= DRIVE) then
+      if not (world.turnIncoming or world.destinationReached or car.forceNeedsCharged or car.parkRequested or car.diagnosticsOn or world.obstructionPresent or car.gear /= DRIVE) then
          if Integer(world.numTurnsTaken) = Integer(world.numTurnsUntilDestination) then
             return (if RandGen.generate(100) < 15 then ARRIVED else NO_SCENARIO);
          elsif car.forceNeedsCharged or car.speed <= 0 then

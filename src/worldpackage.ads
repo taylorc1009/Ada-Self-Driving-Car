@@ -59,8 +59,9 @@ package WorldPackage with SPARK_Mode is
               or (car.speed < 0 and gear /= DRIVE))
      and gear /= car.gear,
      Post => (if car.speed > 0 and gear = PARKED and not car.forceNeedsCharged then car.parkRequested
-       elsif gear = PARKED then not car.parkRequested and car.gear = PARKED
-       elsif gear /= car.gear then car.gear /= car.gear'Old);
+              elsif gear = PARKED then not car.parkRequested and car.gear = PARKED
+              elsif gear /= car.gear then car.gear /= car.gear'Old
+              elsif world.obstructionPresent then car.gear /= PARKED);
 
    procedure diagnosticsSwitch with
      Global => (In_Out => car),
@@ -77,21 +78,27 @@ package WorldPackage with SPARK_Mode is
      Pre => car.gear /= PARKED
      and car.engineOn
      and car.battery > MINIMUM_BATTERY
-     and (value = 1 or value = -1)
+     and (if car.breaking then (if car.speed > 0 then value = -1
+                                elsif car.speed < 0 then value = 1)
+          else (value = 1 or value = -1))
      and not car.diagnosticsOn
      and MilesPerHour'First <= car.speed
-     and car.speed <= world.curStreetSpeedLimit,
+     and car.speed <= world.curStreetSpeedLimit
+     and world.curStreetSpeedLimit >= 10,
      Post => MilesPerHour'First <= car.speed
      and car.speed <= world.curStreetSpeedLimit
-     and car.speed = (if car.speed'Old = world.curStreetSpeedLimit and value > 0 then world.curStreetSpeedLimit
-                      elsif car.speed'Old = MilesPerHour'First and value < 0 then MilesPerHour'First
-                      else car.speed'Old + value);
+     and (if car.breaking then (if car.speed'Old > 0 then 0 <= car.speed and car.speed < car.speed'Old
+                                elsif car.speed'Old < 0 then car.speed > car.speed'Old and car.speed <= 0
+                                else car.speed = car.speed'Old)
+          else car.speed = (if car.speed'Old = world.curStreetSpeedLimit and value > 0 then world.curStreetSpeedLimit
+                            elsif car.speed'Old = MilesPerHour'First and value < 0 then MilesPerHour'First
+                            else car.speed'Old + value));
 
    procedure emergencyStop with
      Global => (In_Out => (car, world)),
      Depends => (car => (car, world), world => world),
      Pre => car.speed > 0
-     and car.battery > 0
+     and car.battery > MINIMUM_BATTERY
      and car.engineOn
      and not (car.diagnosticsOn
               or car.forceNeedsCharged
@@ -99,7 +106,8 @@ package WorldPackage with SPARK_Mode is
               or car.parkRequested
               or world.turnIncoming
               or car.breaking)
-     and car.gear = DRIVE,
+     and car.gear = DRIVE
+     and world.curStreetSpeedLimit >= 10,
      Post => car.speed = 0
      and world.obstructionPresent
      and car.gear = REVERSING;
@@ -172,7 +180,11 @@ package WorldPackage with SPARK_Mode is
      and car.gear = DRIVE
      and car.engineOn
      and not (car.diagnosticsOn
-              or car.forceNeedsCharged)
+              or car.forceNeedsCharged
+              or car.parkRequested
+              or world.destinationReached
+              or world.turnIncoming
+              or world.obstructionPresent)
      and not car.parkRequested;
 
    function carConditionCheck return WorldMessage with
