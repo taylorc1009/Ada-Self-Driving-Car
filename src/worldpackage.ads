@@ -124,7 +124,7 @@ package WorldPackage with SPARK_Mode is
       curStreetSpeedLimit : MilesPerHour := 0;
       numTurnsUntilDestination : WorldTurns := 0;
       numTurnsTaken : WorldTurns := 0;
-      destinationReached : Boolean := True; -- used to determine whether an old route was interuppted; will be False if this is the case
+      destinationReached : Boolean := True; -- also used to determine whether the previous route was prematurely ended; will be False if this is the case
       turnIncoming : Boolean := False;
       obstructionPresent : Boolean := False;
    end record;
