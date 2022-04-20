@@ -56,11 +56,12 @@ package WorldPackage with SPARK_Mode is
      and not (car.speed > 0
               or car.forceNeedsCharged
               or car.diagnosticsOn
-              or (car.speed < 0 and gear /= DRIVE))
+              or (car.speed < 0 and gear /= DRIVE)
+              or (world.obstructionPresent and car.forceNeedsCharged))
      and gear /= car.gear,
      Post => (if car.speed > 0 and gear = PARKED and not car.forceNeedsCharged then car.parkRequested
-              elsif gear = PARKED then not car.parkRequested and car.gear = PARKED
-              elsif gear /= car.gear then car.gear /= car.gear'Old
+              elsif gear = PARKED and not world.obstructionPresent then not car.parkRequested
+              elsif gear /= car.gear and not (gear = PARKED and world.obstructionPresent) then car.gear /= car.gear'Old
               elsif world.obstructionPresent then car.gear /= PARKED);
 
    procedure diagnosticsSwitch with
@@ -80,7 +81,8 @@ package WorldPackage with SPARK_Mode is
      and car.battery > MINIMUM_BATTERY
      and (if car.breaking then (if car.speed > 0 then value = -1
                                 elsif car.speed < 0 then value = 1)
-          else (value = 1 or value = -1))
+          elsif car.gear = REVERSING then value = -1
+          else value = -1)
      and not car.diagnosticsOn
      and MilesPerHour'First <= car.speed
      and car.speed <= world.curStreetSpeedLimit
