@@ -92,7 +92,7 @@ package WorldPackage with SPARK_Mode is
      and car.speed <= world.curStreetSpeedLimit,
      Contract_Cases => (car.breaking => (if car.speed'Old > 0 then 0 <= car.speed and car.speed < car.speed'Old
                                          elsif car.speed'Old < 0 then car.speed > car.speed'Old and car.speed <= 0
-                                         else car.speed = car.speed'Old),
+                                         else car.speed = 0 and car.speed = car.speed'Old),
                         others => car.speed = (if car.speed'Old = world.curStreetSpeedLimit and value > 0 then world.curStreetSpeedLimit
                                                elsif car.speed'Old = MilesPerHour'First and value < 0 then MilesPerHour'First
                                                else car.speed'Old + value));
