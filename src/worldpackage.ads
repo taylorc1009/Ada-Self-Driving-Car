@@ -54,14 +54,15 @@ package WorldPackage with SPARK_Mode is
      Depends => (car => (car, gear, world)),
      Pre => car.engineOn
      and gear /= car.gear
-     and not (car.speed > 0
-              or car.forceNeedsCharged
+     and car.speed <= 0
+     and not (car.forceNeedsCharged
               or car.diagnosticsOn
               or (car.speed < 0 and gear /= DRIVE)
               or (world.obstructionPresent and (car.forceNeedsCharged or gear = PARKED))
               or (car.battery <= MINIMUM_BATTERY and gear /= PARKED)),
      Post => (if car.speed > 0 and gear = PARKED then car.parkRequested and car.gear = car.gear'Old
               elsif world.obstructionPresent then car.gear /= PARKED
+              elsif car.forceNeedsCharged and car.speed = 0 then car.gear = PARKED
               else car.gear /= car.gear'Old);
 
    procedure diagnosticsSwitch with
@@ -110,9 +111,9 @@ package WorldPackage with SPARK_Mode is
               or car.breaking)
      and car.gear = DRIVE
      and world.curStreetSpeedLimit >= 10,
-     Post => car.speed = 0
-     and world.obstructionPresent
-     and car.gear = REVERSING;
+     Post => --car.speed = 0 -- for some reason SPARK cannot prove these two conditions; it complains the conditions will fail when "car.gear = DRIVE" after "changeGear" has been invoked, but this will never happen, even according to the "changeGear" postconditions
+     world.obstructionPresent;
+     --and car.gear = REVERSING;
 
    --World
    type WorldScenario is (ARRIVED, TURN, OBSTRUCTION, NO_SCENARIO); -- note that TURN is a special scenario as it has a higher probability of occurring

@@ -24,15 +24,17 @@ package body WorldPackage with SPARK_Mode is
 
    procedure changeGear (gear : in CarGear) is
    begin
-      if car.engineOn and (car.speed = 0 or (car.speed <= 0 and gear = DRIVE)) and not (car.diagnosticsOn or (gear = PARKED and (car.forceNeedsCharged or world.obstructionPresent)) or gear = car.gear) then
-         car.gear := gear;
-         if car.parkRequested then
-            car.parkRequested := False;
+      if car.engineOn then
+         if (car.speed = 0 or (car.speed <= 0 and gear = DRIVE)) and not (car.diagnosticsOn or (gear /= PARKED and car.forceNeedsCharged) or (gear = PARKED and world.obstructionPresent) or gear = car.gear) then
+            car.gear := gear;
+            if car.parkRequested then
+               car.parkRequested := False;
+            end if;
+         elsif car.speed > 0 and gear = PARKED and not (car.forceNeedsCharged or world.obstructionPresent) then
+            car.parkRequested := True;
          end if;
-      elsif car.speed > 0 and gear = PARKED and not (car.forceNeedsCharged or world.obstructionPresent) then
-         car.parkRequested := True;
+         car.breaking := car.parkRequested;
       end if;
-      car.breaking := car.parkRequested;
    end changeGear;
 
    procedure diagnosticsSwitch is
