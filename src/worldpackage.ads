@@ -27,7 +27,7 @@ package WorldPackage with SPARK_Mode is
      Pre => car.battery > 0
      and ((car.engineOn and car.gear /= PARKED)
           or not (not car.engineOn and car.gear = PARKED and not car.diagnosticsOn)),
-     Post => car.battery < car.battery'Old;
+     Post => car.battery = car.battery'Old - 1;
 
    function warnLowBattery return Boolean with
      Global => (Input => car),
