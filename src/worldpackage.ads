@@ -146,7 +146,10 @@ package WorldPackage with SPARK_Mode is
               or car.forceNeedsCharged),
      Post => world.curStreetSpeedLimit >= 10
      and world.curStreetSpeedLimit <= MilesPerHour'Last
-     and world.curStreetSpeedLimit mod 10 = 0;
+     and world.curStreetSpeedLimit mod 10 = 0
+     and world.turnIncoming = world.turnIncoming'Old
+     and world.numTurnsTaken = world.numTurnsTaken'Old
+     and world.numTurnsUntilDestination = world.numTurnsUntilDestination'Old;
 
    procedure initialiseRoute with
      Global => (In_Out => world, Proof_In => car, Input => generator),
@@ -161,8 +164,8 @@ package WorldPackage with SPARK_Mode is
               or world.obstructionPresent)
      and world.numTurnsUntilDestination > 0,
      Post => world.curStreetSpeedLimit > 0
-       and world.numTurnsUntilDestination > 0
-       and not world.destinationReached; -- for some reason, SPARK cannot prove this even though if it is ever True, the procedure will make it False
+     and world.numTurnsUntilDestination > 0
+     and not world.destinationReached;
 
    procedure carTurn with
      Global => (In_Out => (world, car), Input => generator),
@@ -176,10 +179,12 @@ package WorldPackage with SPARK_Mode is
               or car.forceNeedsCharged
               or world.obstructionPresent
               or world.destinationReached)
-     and Integer(world.numTurnsTaken) < Integer(WorldTurns'Last);
-     --Post => (world.turnIncoming /= world.turnIncoming'Old)
-     --and (if world.turnIncoming then world.numTurnsTaken = world.numTurnsTaken'Old
-     --     else world.numTurnsTaken > world.numTurnsTaken'Old);
+     and Integer(world.numTurnsTaken) < Integer(world.numTurnsUntilDestination)
+     and world.numTurnsUntilDestination > 0,
+     Post => world.turnIncoming /= world.turnIncoming'Old
+     and car.breaking = world.turnIncoming,
+     Contract_Cases => (not world.turnIncoming => world.numTurnsTaken = world.numTurnsTaken'Old,
+                        world.turnIncoming => world.numTurnsTaken > world.numTurnsTaken'Old);
 
    function generateScenario return WorldScenario with
      Global => (Input => (world, car, generator)),
