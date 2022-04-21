@@ -54,14 +54,15 @@ package WorldPackage with SPARK_Mode is
      Depends => (car => (car, gear, world)),
      Pre => car.engineOn
      and gear /= car.gear
-     and car.speed <= 0
+     and car.speed = 0
      and not (car.forceNeedsCharged
               or car.diagnosticsOn
-              or (car.speed < 0 and gear /= DRIVE)
-              or (world.obstructionPresent and (car.forceNeedsCharged or gear = PARKED))
+              or (world.obstructionPresent and (car.forceNeedsCharged
+                                                or car.gear = PARKED
+                                                or gear /= REVERSING))
               or (car.battery <= MINIMUM_BATTERY and gear /= PARKED)),
      Contract_Cases => (car.speed > 0 and gear = PARKED => car.parkRequested and car.gear = car.gear'Old,
-                        world.obstructionPresent => car.gear /= PARKED,
+                        world.obstructionPresent => car.gear = REVERSING and car.speed = 0,
                         car.forceNeedsCharged and car.speed = 0 => car.gear = PARKED,
                         others => car.gear /= car.gear'Old);
 
@@ -74,28 +75,30 @@ package WorldPackage with SPARK_Mode is
      and car.battery > MINIMUM_BATTERY,
      Post => car.diagnosticsOn /= car.diagnosticsOn'Old;
 
-   procedure modifySpeed (value : in MilesPerHour) with
+   function speedDecrementInvariant return Boolean is
+     ((car.gear = REVERSING or (car.breaking and car.speed > 0))
+      and not (car.breaking and car.speed < 0));
+
+   procedure modifySpeed with
      Global => (In_Out => car, Input => world),
-     Depends => (car => (car, world, value)),
+     Depends => (car => (car, world)),
      Pre => car.gear /= PARKED
      and car.engineOn
      and car.battery > MINIMUM_BATTERY
-     and (if car.breaking then (if car.speed > 0 then value = -1
-                                elsif car.speed < 0 then value = 1)
-          elsif car.gear = REVERSING then value = -1
-          else value = 1)
      and not car.diagnosticsOn
      and MilesPerHour'First <= car.speed
      and car.speed <= world.curStreetSpeedLimit
-     and world.curStreetSpeedLimit >= 10,
+     and world.curStreetSpeedLimit >= 10
+     and ((car.speed > 0 and car.gear = DRIVE)
+          or (car.speed < 0 and car.gear = REVERSING)),
      Post => MilesPerHour'First <= car.speed
      and car.speed <= world.curStreetSpeedLimit,
      Contract_Cases => (car.breaking => (if car.speed'Old > 0 then 0 <= car.speed and car.speed < car.speed'Old
-                                         elsif car.speed'Old < 0 then car.speed > car.speed'Old and car.speed <= 0
+                                         elsif car.speed'Old < 0 then car.speed'Old < car.speed and car.speed <= 0
                                          else car.speed = 0 and car.speed = car.speed'Old),
-                        others => car.speed = (if car.speed'Old = world.curStreetSpeedLimit and value > 0 then world.curStreetSpeedLimit
-                                               elsif car.speed'Old = MilesPerHour'First and value < 0 then MilesPerHour'First
-                                               else car.speed'Old + value));
+                        others => car.speed = (if car.speed'Old = world.curStreetSpeedLimit and not speedDecrementInvariant then world.curStreetSpeedLimit
+                                               elsif car.speed'Old = MilesPerHour'First and speedDecrementInvariant then MilesPerHour'First
+                                               else car.speed'Old + (if speedDecrementInvariant then -1 else 1)));
 
    procedure emergencyStop with
      Global => (In_Out => (car, world)),
@@ -111,9 +114,9 @@ package WorldPackage with SPARK_Mode is
               or car.breaking)
      and car.gear = DRIVE
      and world.curStreetSpeedLimit >= 10,
-     Post => --car.speed = 0 -- for some reason SPARK cannot prove these two conditions; it complains the conditions will fail when "car.gear = DRIVE" after "changeGear" has been invoked, but this will never happen, even according to the "changeGear" postconditions
-     world.obstructionPresent;
-     --and car.gear = REVERSING;
+     Post => car.speed = 0
+     and world.obstructionPresent
+     and car.gear = REVERSING;
 
    --World
    type WorldScenario is (ARRIVED, TURN, OBSTRUCTION, NO_SCENARIO); -- note that TURN is a special scenario as it has a higher probability of occurring

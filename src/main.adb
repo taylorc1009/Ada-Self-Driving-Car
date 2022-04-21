@@ -92,12 +92,14 @@ procedure Main is
                   emergencyStop;
                   Put_Line("Reversing to divert obstruction...");
                when others =>
-                  modifySpeed(if car.gear = REVERSING or car.breaking then -1 else 1);
+                  modifySpeed;
             end case;
 
             if Integer(car.speed) = 0 then -- car is stopped in this scenario
-               if world.obstructionPresent and car.gear /= REVERSING then -- the obstruction can be cleared because the car is now in drive
+               if world.obstructionPresent and car.breaking then -- the obstruction can be cleared because the car is now in drive
                   world.obstructionPresent := False;
+                  changeGear(DRIVE);
+                  car.breaking := False;
                end if;
                if car.forceNeedsCharged and car.engineOn then
                   changeGear(PARKED);
@@ -112,7 +114,7 @@ procedure Main is
                end if;
             elsif car.speed = MilesPerHour'First and world.obstructionPresent then
                Put_Line("Car now has enough space to avoid obstruction; continuing on current route...");
-               changeGear(DRIVE);
+               car.breaking := True;
             end if;
 
             case carConditionCheck is
