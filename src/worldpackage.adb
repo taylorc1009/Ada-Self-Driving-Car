@@ -94,9 +94,7 @@ package body WorldPackage with SPARK_Mode is
    function generateScenario return WorldScenario is
    begin
       if not (world.turnIncoming or world.destinationReached or car.forceNeedsCharged or car.parkRequested or car.diagnosticsOn or world.obstructionPresent or car.gear /= DRIVE) then
-         if Integer(world.numTurnsTaken) = Integer(world.numTurnsUntilDestination) then
-            return (if RandGen.generate(100) < 15 then ARRIVED else NO_SCENARIO);
-         elsif car.forceNeedsCharged or car.speed <= 0 then
+         if car.forceNeedsCharged or car.speed <= 0 then
             return NO_SCENARIO;
          end if;
          case RandGen.generate(100) is
@@ -108,7 +106,7 @@ package body WorldPackage with SPARK_Mode is
                      return NO_SCENARIO; -- shouldn't occur as long as the integer above mathes the number of scenarios
                end case;
             when 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 => -- 10% chance of turning
-               return TURN;
+               return (if Integer(world.numTurnsTaken) = Integer(world.numTurnsUntilDestination) then ARRIVED else TURN);
             when others =>
                return NO_SCENARIO;
          end case;
