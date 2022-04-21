@@ -155,16 +155,14 @@ package WorldPackage with SPARK_Mode is
      and car.gear /= PARKED
      and car.battery > MINIMUM_BATTERY
      and car.speed = 0
+     and (not world.destinationReached and world.curStreetSpeedLimit > 0)
      and not (car.diagnosticsOn
               or car.forceNeedsCharged
-              or world.obstructionPresent
-              or (world.destinationReached
-                  or (world.destinationReached
-                      and world.numTurnsTaken = world.numTurnsUntilDestination)))
+              or world.obstructionPresent)
      and world.numTurnsUntilDestination > 0,
-     Post => --world.curStreetSpeedLimit > 0 -- cannot be proved by this function as it is ensured by "generateSpeedLimit" instead
-       world.numTurnsUntilDestination > 0;
-       --and not world.destinationReached; -- for some reason, SPARK cannot prove this even though if it is ever True, the procedure will make it False
+     Post => world.curStreetSpeedLimit > 0
+       and world.numTurnsUntilDestination > 0
+       and not world.destinationReached; -- for some reason, SPARK cannot prove this even though if it is ever True, the procedure will make it False
 
    procedure carTurn with
      Global => (In_Out => (world, car), Input => generator),
