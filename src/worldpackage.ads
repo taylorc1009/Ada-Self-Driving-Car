@@ -54,7 +54,7 @@ package WorldPackage with SPARK_Mode is
      Depends => (car => (car, gear, world)),
      Pre => car.engineOn
      and gear /= car.gear
-     and car.speed = 0
+     and (car.speed = 0 or (car.speed > 0 and gear = PARKED))
      and not (car.forceNeedsCharged
               or car.diagnosticsOn
               or (world.obstructionPresent and (car.forceNeedsCharged or gear /= REVERSING))
