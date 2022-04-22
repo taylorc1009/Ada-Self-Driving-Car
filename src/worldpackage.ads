@@ -90,7 +90,6 @@ package WorldPackage with SPARK_Mode is
      Depends => (car => (car, world)),
      Pre => car.gear /= PARKED
      and car.engineOn
-     and car.battery > MINIMUM_BATTERY
      and not car.diagnosticsOn
      and MilesPerHour'First <= car.speed
      and car.speed <= world.curStreetSpeedLimit
