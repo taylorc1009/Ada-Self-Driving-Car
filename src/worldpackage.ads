@@ -93,7 +93,7 @@ package WorldPackage with SPARK_Mode is
      and not car.diagnosticsOn
      and MilesPerHour'First <= car.speed
      and car.speed <= world.curStreetSpeedLimit
-     and world.curStreetSpeedLimit >= 10
+     and world.curStreetSpeedLimit >= SPEED_LIMIT_STEP_FACTOR
      and ((car.speed > 0 and car.gear = DRIVE)
           or (car.speed < 0 and car.gear = REVERSING)),
      Post => MilesPerHour'First <= car.speed
@@ -118,7 +118,7 @@ package WorldPackage with SPARK_Mode is
               or world.turnIncoming
               or car.breaking)
      and car.gear = DRIVE
-     and world.curStreetSpeedLimit >= 10,
+     and world.curStreetSpeedLimit >= SPEED_LIMIT_STEP_FACTOR,
      Post => car.speed = 0
      and world.obstructionPresent
      and car.gear = REVERSING;
@@ -127,6 +127,7 @@ package WorldPackage with SPARK_Mode is
    type WorldScenario is (ARRIVED, TURN, OBSTRUCTION, NO_SCENARIO); -- note that TURN is a special scenario as it has a higher probability of occurring
    type WorldMessage is (LOW_BATTERY, HAS_ARRIVED, CHARGE_ENFORCED, GENERAL, NO_MESSAGE);
    type WorldTurns is new Integer range 0..3;
+   SPEED_LIMIT_STEP_FACTOR : constant MilesPerHour := 10;
 
    type WorldType is record
       curStreetSpeedLimit : MilesPerHour := 0;
@@ -149,9 +150,9 @@ package WorldPackage with SPARK_Mode is
      and car.engineOn
      and not (car.diagnosticsOn
               or car.forceNeedsCharged),
-     Post => world.curStreetSpeedLimit >= 10
+     Post => world.curStreetSpeedLimit >= SPEED_LIMIT_STEP_FACTOR
      and world.curStreetSpeedLimit <= MilesPerHour'Last
-     and world.curStreetSpeedLimit mod 10 = 0
+     and world.curStreetSpeedLimit mod SPEED_LIMIT_STEP_FACTOR = 0
      and world.turnIncoming = world.turnIncoming'Old
      and world.numTurnsTaken = world.numTurnsTaken'Old
      and world.numTurnsUntilDestination = world.numTurnsUntilDestination'Old;

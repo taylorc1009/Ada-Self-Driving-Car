@@ -64,9 +64,9 @@ package body WorldPackage with SPARK_Mode is
    end emergencyStop;
 
    procedure generateSpeedLimit is
-      optionRange : RandRange := RandRange(Integer(MilesPerHour'Last) / 10);
+      optionRange : RandRange := RandRange(MilesPerHour'Last / SPEED_LIMIT_STEP_FACTOR);
    begin
-      world.curStreetSpeedLimit := MilesPerHour(RandGen.generate(optionRange) * 10);
+      world.curStreetSpeedLimit := MilesPerHour(RandGen.generate(optionRange)) * SPEED_LIMIT_STEP_FACTOR;
    end generateSpeedLimit;
 
    procedure initialiseRoute is
