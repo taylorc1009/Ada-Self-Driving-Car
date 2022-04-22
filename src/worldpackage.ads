@@ -70,7 +70,7 @@ package WorldPackage with SPARK_Mode is
      Contract_Cases => (car.speed > 0 and gear = PARKED => car.parkRequested and car.gear = car.gear'Old,
                         world.obstructionPresent => car.gear = REVERSING and car.speed = 0,
                         (car.forceNeedsCharged or car.parkRequested) and car.speed = 0 => car.gear = PARKED,
-                        others => car.gear /= car.gear'Old);
+                        others => car.gear /= car.gear'Old and car.gear = gear);
 
    procedure diagnosticsSwitch with
      Global => (In_Out => car),
