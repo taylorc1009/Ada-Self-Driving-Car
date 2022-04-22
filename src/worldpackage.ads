@@ -154,7 +154,8 @@ package WorldPackage with SPARK_Mode is
      and world.curStreetSpeedLimit mod SPEED_LIMIT_STEP_FACTOR = 0
      and world.turnIncoming = world.turnIncoming'Old
      and world.numTurnsTaken = world.numTurnsTaken'Old
-     and world.numTurnsUntilDestination = world.numTurnsUntilDestination'Old;
+     and world.numTurnsUntilDestination = world.numTurnsUntilDestination'Old
+     and world.destinationReached = world.destinationReached'Old;
 
    procedure initialiseRoute with
      Global => (In_Out => world, Proof_In => car, Input => generator),
@@ -163,13 +164,15 @@ package WorldPackage with SPARK_Mode is
      and car.gear /= PARKED
      and car.battery > MINIMUM_BATTERY
      and car.speed = 0
-     and (not world.destinationReached
-          and world.curStreetSpeedLimit > 0)
      and not (car.diagnosticsOn
               or car.forceNeedsCharged
               or world.obstructionPresent)
-     and world.numTurnsUntilDestination > 0,
+     and (if not world.destinationReached then
+          world.curStreetSpeedLimit > 0
+          and world.numTurnsTaken = 0
+          and world.numTurnsUntilDestination > 0),
      Post => world.curStreetSpeedLimit > 0
+     and world.numTurnsTaken = 0
      and world.numTurnsUntilDestination > 0
      and not world.destinationReached;
 
