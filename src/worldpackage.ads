@@ -111,14 +111,14 @@ package WorldPackage with SPARK_Mode is
      Pre => car.speed > 0
      and car.battery > MINIMUM_BATTERY
      and car.engineOn
+     and car.gear = DRIVE
+     and world.curStreetSpeedLimit >= SPEED_LIMIT_STEP_FACTOR
      and not (car.diagnosticsOn
               or car.forceNeedsCharged
               or world.obstructionPresent
               or car.parkRequested
               or world.turnIncoming
-              or car.breaking)
-     and car.gear = DRIVE
-     and world.curStreetSpeedLimit >= SPEED_LIMIT_STEP_FACTOR,
+              or car.breaking),
      Post => car.speed = 0
      and world.obstructionPresent
      and car.gear = REVERSING;
@@ -147,7 +147,6 @@ package WorldPackage with SPARK_Mode is
      and car.gear /= PARKED
      and car.speed = 0
      and car.battery > MINIMUM_BATTERY
-     and car.engineOn
      and not (car.diagnosticsOn
               or car.forceNeedsCharged),
      Post => world.curStreetSpeedLimit >= SPEED_LIMIT_STEP_FACTOR
@@ -164,7 +163,8 @@ package WorldPackage with SPARK_Mode is
      and car.gear /= PARKED
      and car.battery > MINIMUM_BATTERY
      and car.speed = 0
-     and (not world.destinationReached and world.curStreetSpeedLimit > 0)
+     and (not world.destinationReached
+          and world.curStreetSpeedLimit > 0)
      and not (car.diagnosticsOn
               or car.forceNeedsCharged
               or world.obstructionPresent)
