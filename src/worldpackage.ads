@@ -56,9 +56,12 @@ package WorldPackage with SPARK_Mode is
      and gear /= car.gear
      and (car.speed = 0
           or (car.speed > 0 and gear = PARKED))
-     and (car.parkRequested
-          xor world.obstructionPresent
-          xor car.forceNeedsCharged)
+     and ((car.parkRequested
+           xor world.obstructionPresent
+           xor car.forceNeedsCharged)
+          or not (car.parkRequested
+                  or world.obstructionPresent
+                  or car.forceNeedsCharged))
      and not (car.diagnosticsOn
               or (world.obstructionPresent and (car.speed /= 0 or gear /= REVERSING))
               or (car.forceNeedsCharged and (car.speed /= 0 or gear /= PARKED))
