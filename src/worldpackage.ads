@@ -200,7 +200,6 @@ package WorldPackage with SPARK_Mode is
      Pre => car.engineOn
      and car.battery > MINIMUM_BATTERY
      and car.gear = DRIVE
-     and car.engineOn
      and not (car.diagnosticsOn
               or car.forceNeedsCharged
               or car.parkRequested
@@ -213,7 +212,6 @@ package WorldPackage with SPARK_Mode is
      Pre => car.engineOn
      and car.battery > MINIMUM_BATTERY
      and car.gear /= PARKED
-     and car.engineOn
      and not (car.diagnosticsOn
               or car.forceNeedsCharged);
 end WorldPackage;
