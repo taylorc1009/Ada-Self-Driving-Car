@@ -55,12 +55,14 @@ package WorldPackage with SPARK_Mode is
      Pre => car.engineOn
      and gear /= car.gear
      and (car.speed = 0 or (car.speed > 0 and gear = PARKED))
+     and (car.parkRequested
+          xor world.obstructionPresent
+          xor car.forceNeedsCharged)
      and not (car.diagnosticsOn
               or (world.obstructionPresent and gear /= REVERSING)
               or (car.forceNeedsCharged and (car.speed /= 0 or gear /= PARKED))
               or (gear /= PARKED and (car.battery <= MINIMUM_BATTERY
-                                      or (car.parkRequested and car.speed = 0))))
-     and (car.parkRequested xor world.obstructionPresent xor car.forceNeedsCharged),
+                                      or (car.parkRequested and car.speed = 0)))),
      Contract_Cases => (car.speed > 0 and gear = PARKED => car.parkRequested and car.gear = car.gear'Old,
                         world.obstructionPresent => car.gear = REVERSING and car.speed = 0,
                         (car.forceNeedsCharged or car.parkRequested) and car.speed = 0 => car.gear = PARKED,
