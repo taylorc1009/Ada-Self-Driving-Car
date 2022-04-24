@@ -8,7 +8,7 @@ package RandGen is
    generator : RandInt.Generator;
 
    function generate(n : in RandRange) return Integer with
-     Post => generate'Result <= Integer(n)
-     and generate'Result >= Integer(RandRange'First)
-     and generate'Result <= Integer(RandRange'Last);
+     Pre => n <= RandRange'Last,
+     Post => Integer(RandRange'First) <= generate'Result
+     and generate'Result <= Integer(n);
 end RandGen;
